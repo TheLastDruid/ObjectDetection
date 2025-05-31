@@ -1,0 +1,151 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"args": [
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"run.ps1",
+				"-SaveAnnotated",
+				"-SaveJson",
+				"-CountObjects"
+			],
+			"command": "powershell.exe",
+			"group": "test",
+			"label": "Run Object Detection",
+			"problemMatcher": [],
+			"type": "shell"
+		},
+		{
+			"args": [
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"camera.ps1",
+				"-Capture",
+				"-SaveAnnotated",
+				"-SaveJson",
+				"-CountObjects"
+			],
+			"command": "powershell.exe",
+			"group": "test",
+			"label": "Camera Capture",
+			"problemMatcher": [],
+			"type": "shell"
+		},
+		{
+			"args": [
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"camera.ps1",
+				"-Live",
+				"-SaveAnnotated"
+			],
+			"command": "powershell.exe",
+			"group": "test",
+			"label": "Live Camera Detection",
+			"problemMatcher": [],
+			"type": "shell",
+			"isBackground": true
+		},
+		{
+			"args": [
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"train.ps1",
+				"-Action",
+				"upgrade"
+			],
+			"command": "powershell.exe",
+			"group": "test",
+			"label": "Upgrade Model (Better Recognition)",
+			"problemMatcher": [],
+			"type": "shell"
+		},
+		{
+			"args": [
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"train.ps1",
+				"-Action",
+				"download"
+			],
+			"command": "powershell.exe",
+			"group": "test",
+			"label": "Download All Models",
+			"problemMatcher": [],
+			"type": "shell"
+		},
+		{
+			"command": "python",
+			"args": [
+				"improve_model.py",
+				"--demo",
+				"--image",
+				"input/sample.jpg"
+			],
+			"group": "test",
+			"label": "Compare Model Performance",
+			"problemMatcher": [],
+			"type": "shell"
+		},
+		{
+			"args": [
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"batch.ps1",
+				"-InputPath",
+				"input",
+				"-Mode",
+				"images"
+			],
+			"command": "powershell.exe",
+			"group": "test",
+			"label": "Batch Process Images",
+			"problemMatcher": [],
+			"type": "shell"
+		},
+		{
+			"args": [
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"web.ps1",
+				"-OpenBrowser"
+			],
+			"command": "powershell.exe",
+			"group": "test",
+			"label": "Launch Web Interface",
+			"problemMatcher": [],
+			"type": "shell",
+			"isBackground": true
+		},
+		{
+			"command": "python",
+			"args": [
+				"config_manager.py",
+				"--list"
+			],
+			"group": "test",
+			"label": "Show Configuration Presets",
+			"problemMatcher": [],
+			"type": "shell"
+		},
+		{
+			"command": "python",
+			"args": [
+				"config_manager.py",
+				"--create-common"
+			],
+			"group": "test",
+			"label": "Create Common Presets",
+			"problemMatcher": [],
+			"type": "shell"
+		}
+	]
+}

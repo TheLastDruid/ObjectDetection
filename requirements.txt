@@ -1,0 +1,23 @@
+# Dependencies for Object Detection
+ultralytics
+opencv-python
+Pillow
+numpy
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Additional dependencies for training and improvement
+pyyaml
+matplotlib
+seaborn
+albumentations
+scikit-learn
+tqdm
+
+# Web interface dependencies
+flask>=2.0.0
+werkzeug>=2.0.0
+jinja2>=3.0.0
+
+# Configuration management
+pathlib2

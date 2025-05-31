@@ -1,0 +1,42 @@
+{
+  "model": {
+    "path": "yolov8m.pt",
+    "confidence": 0.15,
+    "iou_threshold": 0.3,
+    "max_detections": 300
+  },
+  "camera": {
+    "index": 0,
+    "resolution": [
+      640,
+      480
+    ],
+    "fps": 30
+  },
+  "output": {
+    "save_annotated": true,
+    "save_json": true,
+    "count_objects": true,
+    "output_dir": "output"
+  },
+  "video": {
+    "frame_interval": 30,
+    "save_frames": false,
+    "output_fps": 30
+  },
+  "batch": {
+    "parallel_processing": false,
+    "max_workers": 4
+  },
+  "display": {
+    "show_confidence": true,
+    "show_labels": true,
+    "bbox_thickness": 2,
+    "font_scale": 0.8
+  },
+  "metadata": {
+    "created": "2025-06-01T00:42:24.354767",
+    "name": "high_accuracy",
+    "version": "1.0"
+  }
+}
