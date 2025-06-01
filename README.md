@@ -6,9 +6,6 @@ A local object detection system using YOLOv8, optimized for both CPU and GPU sys
 
 The project has been successfully converted from Docker to a local Windows setup and is fully functional with comprehensive capabilities:
 
-- ✅ All Docker dependencies removed
-- ✅ Local Python virtual environment created
-- ✅ All dependencies installed (PyTorch CPU, OpenCV, Ultralytics)
 - ✅ PowerShell scripts created for easy setup and execution
 - ✅ VS Code tasks configured
 - ✅ Object detection tested and working on files
