@@ -406,9 +406,8 @@ def create_templates():
         });
     </script>
 </body>
-</html>'''
-    
-    with open(templates_dir / 'index.html', 'w') as f:
+</html>'''    
+    with open(templates_dir / 'index.html', 'w', encoding='utf-8') as f:
         f.write(index_html)
     
     # Camera page template
@@ -543,7 +542,7 @@ def create_templates():
 </body>
 </html>'''
     
-    with open(templates_dir / 'camera.html', 'w') as f:
+    with open(templates_dir / 'camera.html', 'w', encoding='utf-8') as f:
         f.write(camera_html)
     
     # Models page template
@@ -596,7 +595,7 @@ def create_templates():
 </body>
 </html>'''
     
-    with open(templates_dir / 'models.html', 'w') as f:
+    with open(templates_dir / 'models.html', 'w', encoding='utf-8') as f:
         f.write(models_html)
 
 def main():

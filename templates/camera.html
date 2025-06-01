@@ -3,31 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Object Detection Web Interface</title>
+    <title>Camera Detection</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .drop-zone {
-            border: 2px dashed #ccc;
-            border-radius: 10px;
-            padding: 40px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .drop-zone:hover {
-            border-color: #007bff;
-            background-color: #f8f9fa;
-        }
-        .result-image {
-            max-width: 100%;
-            height: auto;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .detection-card {
-            border-left: 4px solid #007bff;
-        }
-    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -35,7 +12,7 @@
             <a class="navbar-brand" href="/">🎯 Object Detection</a>
             <div class="navbar-nav">
                 <a class="nav-link" href="/">Upload</a>
-                <a class="nav-link" href="/camera">Camera</a>
+                <a class="nav-link active" href="/camera">Camera</a>
                 <a class="nav-link" href="/models">Models</a>
             </div>
         </div>
@@ -44,8 +21,8 @@
     <div class="container my-5">
         <div class="row">
             <div class="col-md-6">
-                <h2>Upload Image for Detection</h2>
-                <form id="uploadForm" enctype="multipart/form-data">
+                <h2>Camera Detection</h2>
+                <form id="cameraForm">
                     <div class="mb-3">
                         <label for="model" class="form-label">Model</label>
                         <select id="model" name="model" class="form-select">
@@ -61,30 +38,28 @@
                         <small class="text-muted">Value: <span id="confidenceValue">0.25</span></small>
                     </div>
                     
-                    <div class="drop-zone mb-3" onclick="document.getElementById('fileInput').click()">
-                        <input type="file" id="fileInput" name="file" accept="image/*,video/*" style="display: none;">
-                        <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
-                        <p>Click to select or drag and drop an image/video file</p>
-                        <small class="text-muted">Supported: JPG, PNG, MP4, AVI, etc.</small>
+                    <div class="mb-3">
+                        <label for="camera_index" class="form-label">Camera Index</label>
+                        <input type="number" id="camera_index" name="camera_index" class="form-control" value="0" min="0" max="9">
                     </div>
                     
-                    <button type="submit" class="btn btn-primary">🔍 Detect Objects</button>
+                    <button type="submit" class="btn btn-primary">📷 Capture & Detect</button>
                 </form>
             </div>
             
             <div class="col-md-6">
                 <div id="results" style="display: none;">
                     <h3>Detection Results</h3>
-                    <img id="resultImage" class="result-image mb-3">
+                    <img id="resultImage" class="img-fluid mb-3">
                     <div id="detectionInfo"></div>
                 </div>
                 
                 <div id="loading" style="display: none;">
                     <div class="text-center">
                         <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Processing...</span>
+                            <span class="visually-hidden">Capturing...</span>
                         </div>
-                        <p class="mt-2">Processing image...</p>
+                        <p class="mt-2">Capturing from camera...</p>
                     </div>
                 </div>
             </div>
@@ -93,27 +68,19 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Update confidence value display
         document.getElementById('confidence').addEventListener('input', function() {
             document.getElementById('confidenceValue').textContent = this.value;
         });
 
-        // Handle form submission
-        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+        document.getElementById('cameraForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const formData = new FormData(this);
-            const file = document.getElementById('fileInput').files[0];
-            
-            if (!file) {
-                alert('Please select a file first');
-                return;
-            }
             
             document.getElementById('loading').style.display = 'block';
             document.getElementById('results').style.display = 'none';
             
-            fetch('/upload', {
+            fetch('/camera_capture', {
                 method: 'POST',
                 body: formData
             })
@@ -125,7 +92,7 @@
                     document.getElementById('resultImage').src = 'data:image/jpeg;base64,' + data.image;
                     
                     let infoHtml = `
-                        <div class="card detection-card">
+                        <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">📊 Detection Summary</h5>
                                 <p><strong>Objects Found:</strong> ${data.objects_count}</p>

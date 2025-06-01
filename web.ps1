@@ -102,6 +102,9 @@ if ($flaskCheck -ne "installed") {
     }
 }
 
+# Get the full path to the Python executable in the virtual environment
+$pythonPath = Join-Path $PWD "venv\Scripts\python.exe"
+
 # Prepare arguments
 $pythonArgs = @(
     "web_interface.py"
@@ -120,6 +123,7 @@ Write-Host "==========================================" -ForegroundColor Green
 Write-Host "🔗 Host: $Host" -ForegroundColor Cyan
 Write-Host "🔌 Port: $Port" -ForegroundColor Cyan
 Write-Host "🌍 URL: http://$Host`:$Port" -ForegroundColor Cyan
+Write-Host "🐍 Python: $pythonPath" -ForegroundColor Cyan
 
 if ($Debug) {
     Write-Host "🐛 Debug Mode: Enabled" -ForegroundColor Yellow
@@ -144,9 +148,9 @@ Write-Host "🚀 Starting web server..." -ForegroundColor Green
 Write-Host "   (Press Ctrl+C to stop)" -ForegroundColor Gray
 Write-Host ""
 
-# Start the web server
+# Start the web server using the full path to Python
 try {
-    python @pythonArgs
+    & $pythonPath @pythonArgs
 } catch {
     Write-Host "❌ Error starting web interface: $($_.Exception.Message)" -ForegroundColor Red
     exit 1
