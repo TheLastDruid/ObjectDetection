@@ -133,7 +133,7 @@ Write-Host "🚀 Starting Batch Object Detection" -ForegroundColor Green
 Write-Host "================================" -ForegroundColor Green
 Write-Host "📁 Input: $InputPath" -ForegroundColor Cyan
 Write-Host "📤 Output: $OutputDir" -ForegroundColor Cyan
-Write-Host "🤖 Model: $ModelPath" -ForegroundColor Cyan
+Write-Host "🔧 Model: $ModelPath" -ForegroundColor Cyan
 Write-Host "🎯 Mode: $Mode" -ForegroundColor Cyan
 Write-Host "📊 Confidence: $Confidence" -ForegroundColor Cyan
 

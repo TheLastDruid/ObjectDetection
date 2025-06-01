@@ -259,7 +259,7 @@ def main():
     
     elif args.models:
         models = config_manager.get_model_configs()
-        print("\n🤖 Available Model Configurations:")
+        print("\n🔧 Available Model Configurations:")
         print("=" * 40)
         for name, config in models.items():
             print(f"  {name.upper()}: {config['path']}")

@@ -1,4 +1,4 @@
-# Training and Model Improvement Script for YOLOv8 Object Detection
+# Model Training and Improvement Script for YOLOv8 Object Detection
 # ================================================================
 
 param(
@@ -14,7 +14,7 @@ param(
 )
 
 function Show-Help {
-    Write-Host "🤖 YOLOv8 Model Training and Improvement" -ForegroundColor Cyan
+    Write-Host "🔧 YOLOv8 Model Training and Improvement" -ForegroundColor Cyan
     Write-Host "=======================================" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "USAGE:" -ForegroundColor Yellow

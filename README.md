@@ -7,7 +7,7 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey)](README.md)
 
-**ObjectDetection** is a comprehensive, production-ready object detection platform built with YOLOv8. It features a modern web interface, automated batch processing, real-time camera detection, and powerful configuration management - all wrapped in intuitive PowerShell automation scripts.
+**ObjectDetection** is a comprehensive, production-ready object detection platform built with YOLOv8. It features a modern web interface, batch processing, real-time camera detection, and powerful configuration management - all wrapped in intuitive PowerShell scripts.
 
 ## ✨ Key Features
 
@@ -15,8 +15,8 @@
 🌐 **Web Interface** - Modern browser-based GUI with drag-and-drop  
 🔄 **Batch Processing** - Handle multiple files with comprehensive reporting  
 📷 **Camera Integration** - Real-time detection and capture capabilities  
-⚙️ **Smart Configuration** - Preset management for different use cases  
-🚀 **PowerShell Automation** - Windows-native scripts for easy operation  
+⚙️ **Configuration Management** - Preset management for different use cases  
+🚀 **PowerShell Scripts** - Windows-native scripts for easy operation  
 🎯 **Model Management** - Multi-model support with automatic downloading  
 📊 **Performance Analysis** - Built-in benchmarking and comparison tools
 

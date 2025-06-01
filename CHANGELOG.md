@@ -63,9 +63,9 @@ This release transforms ObjectDetection from a basic tool into a comprehensive o
 - **Multiple Capture Modes**: Single capture, burst mode, and continuous monitoring
 
 #### Model Management
-- **Automatic Download**: Smart model downloading and caching
+- **Model Download**: Model downloading and caching
 - **Model Comparison**: Side-by-side performance analysis
-- **Size Optimization**: Automatic model selection based on requirements
+- **Size Optimization**: Model selection based on requirements
 
 ### 📁 Project Structure
 ```
@@ -106,7 +106,7 @@ ObjectDetection/
 - **Memory Management**: Reduced RAM usage for large batch operations
 - **Processing Speed**: Up to 40% faster detection on average
 - **Concurrent Processing**: Multi-threaded batch operations
-- **Smart Caching**: Intelligent model and result caching
+- **Model Caching**: Model and result caching
 
 #### Compatibility
 - **Windows 10/11**: Full native support

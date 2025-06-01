@@ -5,7 +5,7 @@ from ultralytics import YOLO
 import os
 
 def show_available_models():
-    print("🤖 Available YOLOv8 Models:")
+    print("🔧 Available YOLOv8 Models:")
     print("=" * 50)
     
     models = {

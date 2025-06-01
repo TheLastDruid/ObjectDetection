@@ -16,7 +16,7 @@ param(
     [float]$Confidence = 0.25
 )
 
-Write-Host "🤖 Enhanced Object Detection" -ForegroundColor Green
+Write-Host "🔧 Enhanced Object Detection" -ForegroundColor Green
 
 # Model mapping
 $modelMap = @{

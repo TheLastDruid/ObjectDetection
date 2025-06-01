@@ -30,7 +30,7 @@ DESCRIPTION:
     Features:
     - 📤 Upload images/videos for detection
     - 📷 Camera capture and detection
-    - 🤖 Model management and selection
+    - 🔧 Model management and selection
     - 📊 Real-time results display
     - 🎛️ Adjustable confidence settings
 
