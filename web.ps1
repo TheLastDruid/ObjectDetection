@@ -101,6 +101,8 @@ if ($flaskCheck -ne "installed") {
         exit 1
     }
 }
+    }
+}
 
 # Prepare arguments
 $pythonArgs = @(

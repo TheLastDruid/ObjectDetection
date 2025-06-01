@@ -1,398 +1,341 @@
-# Object Detection with YOLOv8 - Local Setup
+# 🎯 ObjectDetection Platform
 
-A local object detection system using YOLOv8, optimized for both CPU and GPU systems.
+> **Advanced object detection platform with web interface, batch processing, and PowerShell automation**
 
-## 🎯 Status: ✅ FULLY OPERATIONAL WITH ADVANCED FEATURES
+[![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://python.org)
+[![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-orange)](https://ultralytics.com)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey)](README.md)
 
-The project has been successfully converted from Docker to a local Windows setup and is fully functional with comprehensive capabilities:
+**ObjectDetection** is a comprehensive, production-ready object detection platform built with YOLOv8. It features a modern web interface, automated batch processing, real-time camera detection, and powerful configuration management - all wrapped in intuitive PowerShell automation scripts.
 
-- ✅ PowerShell scripts created for easy setup and execution
-- ✅ VS Code tasks configured
-- ✅ Object detection tested and working on files
-- ✅ **Camera capture functionality added and tested**
-- ✅ **Live camera detection implemented**
-- ✅ **Model training and improvement system added**
-- ✅ **Multiple YOLOv8 model sizes with performance comparison**
-- ✅ **Batch processing** for multiple images and videos
-- ✅ **Web interface** with browser-based GUI
-- ✅ **Configuration management** with presets
-- ✅ All output formats verified (annotated images, JSON reports, object counting)
+## ✨ Key Features
 
-### Test Results
-- **Model**: YOLOv8n (downloaded automatically)
-- **Device**: CPU (with GPU support available if CUDA is detected)
-- **File Detection**: Successfully detected 1 clock object with 93.7% confidence
-- **Camera Detection**: Successfully detected person (50.9% confidence) and laptop (52.1% confidence)
-- **Model Improvement**: Upgraded from YOLOv8n to YOLOv8m showing +1 object detection improvement
-- **Output Files**: Generated annotated images and JSON reports for both file and camera inputs
-- **Performance**: Fast inference on CPU (~1-2 seconds per image)
-- **Camera**: Real-time detection working with webcam integration
+🖼️ **Multiple Input Methods** - Images, videos, camera capture, live detection  
+🌐 **Web Interface** - Modern browser-based GUI with drag-and-drop  
+🔄 **Batch Processing** - Handle multiple files with comprehensive reporting  
+📷 **Camera Integration** - Real-time detection and capture capabilities  
+⚙️ **Smart Configuration** - Preset management for different use cases  
+🚀 **PowerShell Automation** - Windows-native scripts for easy operation  
+🎯 **Model Management** - Multi-model support with automatic downloading  
+📊 **Performance Analysis** - Built-in benchmarking and comparison tools
 
-## Features
-
-- **Multiple Input Methods**:
-  - Static image files (JPG, PNG, etc.)
-  - Single camera capture
-  - Live camera detection with real-time overlay
-  - **Batch processing** of multiple images
-  - **Video file processing** with frame-by-frame detection
-- **Flexible Output Options**:
-  - Annotated images with bounding boxes and labels
-  - JSON reports with detection data and confidence scores
-  - Object counting and statistics
-  - Timestamped captures for camera mode
-  - **Batch processing summaries** and reports
-  - **Video processing** with annotated output videos
-- **Model Training & Improvement**:
-  - **Automatic model upgrades** for better recognition
-  - **Performance comparison** between different model sizes
-  - **Custom training** capabilities for specific objects
-  - **Data preparation** tools and workflows
-  - **Model evaluation** and benchmarking
-- **Web Interface**:
-  - **Browser-based GUI** for easy access
-  - **Drag-and-drop file upload**
-  - **Camera capture through web interface**
-  - **Real-time model selection** and settings
-  - **Mobile-friendly responsive design**
-- **Configuration Management**:
-  - **Preset configurations** for different use cases
-  - **Customizable detection settings**
-  - **Performance profiles** (fast, balanced, accurate)
-  - **Easy preset switching**
-- **Easy-to-Use Scripts**:
-  - `setup.ps1` - One-command environment setup
-  - `run.ps1` - File-based object detection
-  - `camera.ps1` - Camera-based detection (capture or live)
-  - `train.ps1` - Model training and improvement operations
-  - `batch.ps1` - Batch processing of images or videos
-  - `web.ps1` - Launch web interface for GUI access
-  - `config_manager.py` - Manage configuration presets and model settings
-- **VS Code Integration**: Pre-configured tasks for common operations including model training
-- **Cross-Platform Model Support**: Works with any YOLOv8 model variant (nano to extra-large)
-
-## Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.8+ installed
-- PowerShell (Windows)
-- At least 4GB RAM available
+- **Python 3.8+** installed on your system
+- **PowerShell** (Windows) or **Bash** (Linux)
+- At least **4GB RAM** available
 
-### 1. Setup (One Command)
+### One-Command Setup
 ```powershell
+# Clone and setup in one go
+git clone https://github.com/YOUR_USERNAME/ObjectDetection.git
+cd ObjectDetection
 .\setup.ps1
 ```
 
-### 2. Run Detection
+### Basic Usage
 ```powershell
-# Quick run with default settings
+# 🖼️ Detect objects in images
 .\run.ps1 -SaveAnnotated -SaveJson -CountObjects
 
-# Or run directly with Python (after activating venv)
-.\venv\Scripts\Activate.ps1
-python main.py --image_path input/sample.jpg --save_annotated --save_json --count_objects
-```
+# 📷 Camera capture and detection
+.\camera.ps1 -Capture -SaveAnnotated -SaveJson
 
-### 3. Camera Detection
-```powershell
-# Take a single photo from camera and detect objects
-.\camera.ps1 -Capture -SaveAnnotated -SaveJson -CountObjects
-
-# Start live camera detection (press 'q' to quit)
-.\camera.ps1 -Live -SaveAnnotated
-
-# Use different camera (if you have multiple cameras)
-.\camera.ps1 -Capture -CameraIndex 1 -SaveAnnotated
-```
-
-### 4. Model Training & Improvement
-```powershell
-# Upgrade to better models for improved recognition
-.\train.ps1 -Action upgrade
-
-# Download all available model sizes  
-.\train.ps1 -Action download
-
-# Compare model performance
-python improve_model.py --demo --image "input\sample.jpg"
-
-# Prepare for custom training
-.\train.ps1 -Action prepare
-```
-
-### 5. Batch Processing
-```powershell
-# Process all images in a directory
-.\batch.ps1 -InputPath "your_images" -Mode images
-
-# Process a video file with object detection
-.\batch.ps1 -InputPath "video.mp4" -Mode video -SaveFrames
-
-# Batch process with better model
-.\batch.ps1 -InputPath "photos" -ModelPath "models\yolov8m.pt"
-```
-
-### 6. Web Interface
-```powershell
-# Launch web interface for easy GUI access
+# 🌐 Launch web interface
 .\web.ps1 -OpenBrowser
 
-# Start with public access (accessible from other devices)
-.\web.ps1 -Host "0.0.0.0" -Port 5000
+# 🔄 Batch process multiple files
+.\batch.ps1 -InputPath "input" -Mode images
 ```
 
-### 7. Configuration Management
+## 📖 Usage Examples
+
+<details>
+<summary><b>🖼️ Image Detection</b></summary>
+
 ```powershell
-# Show available configuration presets
-python config_manager.py --list
+# Process single image
+.\run.ps1 -ImagePath "input/photo.jpg" -SaveAnnotated
 
-# Create common presets (high_accuracy, fast_processing, etc.)
-python config_manager.py --create-common
+# Use different model for better accuracy
+.\run.ps1 -ModelPath "models/yolov8m.pt" -SaveAnnotated
 
-# Show model configurations
-python config_manager.py --models
+# Custom confidence threshold
+python main.py --image_path "input/photo.jpg" --conf_threshold 0.7 --save_annotated
 ```
+</details>
 
-## How It Works
+<details>
+<summary><b>📷 Camera Detection</b></summary>
 
-1. **Input Options**: 
-   - Place images in the `input/` folder for file-based detection
-   - Use camera capture for single photos: `.\camera.ps1 -Capture`
-   - Use live camera detection: `.\camera.ps1 -Live`
-2. **Processing**: The script processes images using YOLOv8 inference (CPU or GPU)
-3. **Output**: Results are saved to the `output/` folder with:
-   - Annotated images with bounding boxes
-   - JSON files with detection data
-   - Object counts and statistics
-
-## Default Behavior
-
-The system automatically:
-- Downloads the YOLOv8 nano model (`yolov8n.pt`) if not present
-- Processes `input/sample.jpg` by default
-- Saves annotated images and JSON results
-- Runs with optimized settings for available hardware (CPU/GPU)
-
-## Customizing Detection
-
-### Process Different Images
-```powershell
-# Copy your images to the input folder
-Copy-Item "C:\path\to\your\image.jpg" -Destination "input\"
-
-# Process specific image
-.\run.ps1 -ImagePath "input/your_image.jpg" -SaveAnnotated
-```
-
-### Camera Detection
 ```powershell
 # Single photo capture
 .\camera.ps1 -Capture -SaveAnnotated -SaveJson -CountObjects
 
-# Live camera detection with controls:
-# - Press 'q' to quit
-# - Press 's' to save current frame (if objects detected)  
-# - Press 'c' to capture current frame
+# Live camera detection (press 'q' to quit)
 .\camera.ps1 -Live -SaveAnnotated
 
-# Use different camera (0, 1, 2, etc.)
+# Use specific camera (if multiple cameras)
 .\camera.ps1 -Capture -CameraIndex 1 -SaveAnnotated
 ```
+</details>
 
-### Modify Detection Settings
-You can customize detection by editing the parameters in main.py or passing different arguments:
+<details>
+<summary><b>🔄 Batch Processing</b></summary>
+
 ```powershell
-# Higher confidence threshold
-python main.py --image_path "input/your_image.jpg" --conf_threshold 0.5
+# Process all images in directory
+.\batch.ps1 -InputPath "my_photos" -Mode images
 
-# Use different model
-python main.py --model_path "models/yolov8s.pt" --image_path "input/your_image.jpg"
+# Process video with frame extraction
+.\batch.ps1 -InputPath "video.mp4" -Mode video -SaveFrames
+
+# Batch process with performance model
+.\batch.ps1 -InputPath "photos" -ModelPath "models/yolov8m.pt"
+```
+</details>
+
+<details>
+<summary><b>🌐 Web Interface</b></summary>
+
+```powershell
+# Launch local web interface
+.\web.ps1 -OpenBrowser
+
+# Start with network access (accessible from other devices)
+.\web.ps1 -Host "0.0.0.0" -Port 5000
+
+# Start in debug mode
+.\web.ps1 -Debug -OpenBrowser
+```
+</details>
+
+## 🎯 Model Performance
+
+The platform supports multiple YOLOv8 model variants, automatically downloading and comparing performance:
+
+| Model | Size | Speed | Accuracy | Best For |
+|-------|------|-------|----------|----------|
+| **YOLOv8n** | 6MB | ⚡ Very Fast | Good | Quick testing, low resources |
+| **YOLOv8s** | 22MB | ⚡ Fast | Better | Balanced performance |
+| **YOLOv8m** | 52MB | 🔄 Medium | Best | Production use, high accuracy |
+| **YOLOv8l** | 87MB | 🐌 Slower | Excellent | Maximum accuracy needed |
+
+### Model Management
+```powershell
+# Download and compare all models
+.\train.ps1 -Action upgrade
+
+# Compare performance on your images
+python improve_model.py --demo --image "input/sample.jpg"
+
+# Use specific model
+.\run.ps1 -ModelPath "models/yolov8m.pt" -SaveAnnotated
 ```
 
-## Performance Notes
+## 📁 Project Structure
 
-- **CPU Performance**: Optimized for multi-core CPU processing
-- **GPU Support**: Automatically detects and uses CUDA if available
-- **Memory Usage**: Typically uses 1-2GB RAM during processing
-- **Processing Time**: ~5-15 seconds per image on CPU, ~1-3 seconds on GPU
-- **Model Size**: YOLOv8 nano model (~6MB) balances speed and accuracy
+```
+ObjectDetection/
+├── 🔧 Automation Scripts
+│   ├── setup.ps1              # Environment setup
+│   ├── run.ps1                # Image detection
+│   ├── camera.ps1             # Camera operations
+│   ├── batch.ps1              # Batch processing
+│   ├── train.ps1              # Model management
+│   └── web.ps1                # Web interface
+├── 🐍 Core Python Scripts
+│   ├── main.py                # Detection engine
+│   ├── web_interface.py       # Flask web app
+│   ├── batch_process.py       # Batch processing
+│   ├── config_manager.py      # Configuration management
+│   ├── train_model.py         # Training utilities
+│   └── improve_model.py       # Performance analysis
+├── 📁 Data Directories
+│   ├── input/                 # Input images/videos
+│   ├── output/                # Detection results
+│   ├── models/                # YOLO models (auto-downloaded)
+│   ├── configs/               # Configuration presets
+│   └── templates/             # Web interface templates
+└── 📚 Documentation
+    ├── README.md              # This file
+    ├── CONTRIBUTING.md        # Contribution guide
+    ├── CHANGELOG.md           # Version history
+    └── LICENSE                # MIT license
+```
 
-## Troubleshooting
+## ⚙️ Configuration Management
 
-### Python Environment Issues
+The platform includes a powerful configuration system with preset profiles:
+
+```powershell
+# List available presets
+python config_manager.py --list
+
+# Create common presets
+python config_manager.py --create-common
+```
+
+### Available Presets
+- **🚀 Fast Processing** - Optimized for speed (YOLOv8n, low confidence)
+- **🎯 High Accuracy** - Maximum precision (YOLOv8m, high confidence)  
+- **📱 Mobile Friendly** - Lightweight for low-resource devices
+- **🔒 Security Camera** - Optimized for surveillance scenarios
+
+## 🌐 Web Interface Features
+
+Launch the modern web interface for non-technical users:
+
+```powershell
+.\web.ps1 -OpenBrowser
+```
+
+**Features:**
+- 📤 **Drag & Drop Upload** - Easy file handling
+- 📷 **Camera Integration** - Browser-based camera access
+- 🎛️ **Model Selection** - Choose different YOLO models
+- ⚙️ **Adjustable Settings** - Confidence thresholds, output options
+- 📊 **Real-time Results** - Instant detection visualization
+- 📱 **Mobile Responsive** - Works on phones and tablets
+
+## 🔧 Advanced Configuration
+
+### Custom Model Training
+```powershell
+# Prepare training environment
+.\train.ps1 -Action prepare
+
+# Train custom model (after data preparation)
+.\train.ps1 -Action train -ClassNames "cat,dog,bird" -ProjectName "pets"
+```
+
+### Performance Optimization
+```powershell
+# Benchmark different models
+python improve_model.py --batch_dir "input"
+
+# GPU acceleration (if CUDA available)
+python main.py --device cuda --image_path "input/sample.jpg"
+```
+
+## 🛠️ Troubleshooting
+
+<details>
+<summary><b>🐍 Python Environment Issues</b></summary>
+
 ```powershell
 # Recreate virtual environment
 Remove-Item -Recurse -Force venv
 .\setup.ps1
-```
 
-### Missing Dependencies
-```powershell
-# Reinstall dependencies
+# Verify installation
 .\venv\Scripts\Activate.ps1
-pip install -r requirements.txt --force-reinstall
+python -c "import torch, cv2, ultralytics; print('✅ All packages working')"
 ```
+</details>
 
-### Memory Issues
-```powershell
-# Increase Docker memory limit in Docker Desktop settings
-# Close unnecessary applications to free up memory
-```
-
-### Slow Performance
-- Ensure Python has access to multiple CPU cores
-- Close unnecessary applications to free up CPU and memory
-- Use smaller input images for faster processing
-- Consider using a smaller model (yolov8n.pt) for faster inference
-
-## Commands Reference
+<details>
+<summary><b>📦 Missing Dependencies</b></summary>
 
 ```powershell
-# Setup and installation
-.\setup.ps1                           # Install dependencies and setup venv
-
-# File-based detection
-.\run.ps1 -SaveAnnotated -SaveJson    # Quick run with common options
-.\run.ps1 -ImagePath "input/my.jpg"   # Process specific image
-.\run.ps1 -ModelPath "models/yolov8s.pt" # Use different model
-
-# Camera detection
-.\camera.ps1 -Capture -SaveAnnotated  # Take single photo and detect
-.\camera.ps1 -Live -SaveAnnotated     # Live camera detection
-.\camera.ps1 -Capture -CameraIndex 1  # Use different camera
-
-# Training and improvement
-.\train.ps1 -Action upgrade             # Upgrade to better models
-.\train.ps1 -Action download            # Download all model sizes
-.\train.ps1 -Action compare -TestImages "input"  # Compare models
-python improve_model.py --demo --image "input\sample.jpg"  # Performance demo
-
-# Batch processing
-.\batch.ps1 -InputPath "your_images" -Mode images   # Process directory of images
-.\batch.ps1 -InputPath "video.mp4" -Mode video -SaveFrames  # Process video file
-.\batch.ps1 -InputPath "photos" -ModelPath "models\yolov8m.pt"  # Batch process with model
-
-# Web interface
-.\web.ps1 -OpenBrowser                 # Launch web interface
-.\web.ps1 -Host "0.0.0.0" -Port 5000   # Start with public access
-
-# Configuration management
-python config_manager.py --list        # Show available presets
-python config_manager.py --create-common  # Create common presets
-python config_manager.py --models      # Show model configurations
-
-# Manual Python commands (after activating venv)
+# Force reinstall all dependencies
 .\venv\Scripts\Activate.ps1
-python main.py --image_path "input/sample.jpg" --save_annotated --save_json --count_objects
-python main.py --camera --save_annotated --save_json --count_objects
-python main.py --live_camera --save_annotated
-python main.py --help                 # See all available options
+pip install -r requirements.txt --force-reinstall --no-cache-dir
+
+# Install specific package
+pip install ultralytics --upgrade
 ```
+</details>
 
-## File Structure
-
-```
-├── setup.ps1              # Setup script for dependencies
-├── run.ps1                # Main run script for file-based detection
-├── camera.ps1             # Camera detection script
-├── train.ps1              # Model training and improvement script
-├── batch.ps1              # Batch processing script
-├── web.ps1                # Web interface script
-├── config_manager.py       # Configuration management script
-├── main.py                # Object detection application
-├── train_model.py         # Advanced training functionality
-├── improve_model.py       # Model comparison and benchmarking
-├── requirements.txt       # Python dependencies
-├── input/                 # Place images here
-│   └── sample.jpg         # Example input image
-├── output/                # Results appear here
-├── models/                # YOLO models (auto-downloaded)
-│   ├── yolov8n.pt        # Nano model (6MB)
-│   ├── yolov8s.pt        # Small model (22MB)
-│   └── yolov8m.pt        # Medium model (52MB)
-├── training_projects/     # Custom training projects (created as needed)
-└── venv/                  # Python virtual environment (created by setup)
-```
-
-## Next Steps
-
-1. **Setup the environment** with `.\setup.ps1`
-2. **Choose your detection method**:
-   - **File-based**: Add your images to `input/` folder and run `.\run.ps1 -SaveAnnotated -SaveJson -CountObjects`
-   - **Camera capture**: Take single photos with `.\camera.ps1 -Capture -SaveAnnotated -SaveJson -CountObjects`
-   - **Live detection**: Real-time camera feed with `.\camera.ps1 -Live -SaveAnnotated`
-3. **Check results** in the `output/` folder
-
-For more advanced usage, activate the virtual environment and run Python directly:
-```powershell
-.\venv\Scripts\Activate.ps1
-python main.py --help
-```
-
-## Model Training & Improvement
-
-### Upgrade for Better Recognition
-The easiest way to improve object recognition is to use larger, more accurate models:
+<details>
+<summary><b>🔧 PowerShell Execution Issues</b></summary>
 
 ```powershell
-# Download and test multiple model sizes
-.\train.ps1 -Action upgrade
+# Enable script execution (run as Administrator)
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
-# This will:
-# 1. Download YOLOv8n (6MB), YOLOv8s (22MB), YOLOv8m (52MB)
-# 2. Test them on your sample image
-# 3. Show performance comparison
-# 4. Recommend the best model for your needs
+# Run with bypass (alternative)
+powershell.exe -ExecutionPolicy Bypass -File ".\setup.ps1"
 ```
+</details>
 
-### Model Comparison Results
-Based on testing with `input\sample.jpg`:
-
-| Model | Size | Objects Detected | Best Detection | Confidence | Speed |
-|-------|------|------------------|----------------|------------|-------|
-| YOLOv8n (Nano) | 6MB | 2 objects | bear | 67.1% | Fast |
-| YOLOv8s (Small) | 22MB | 2 objects | dog | 88.0% | Fast |
-| **YOLOv8m (Medium)** | 52MB | **3 objects** | bear | **86.4%** | Medium |
-
-**Result**: YOLOv8m detected +1 additional object with higher confidence!
-
-### Using Better Models
-Once you've downloaded improved models, use them in your detection:
+<details>
+<summary><b>📷 Camera Not Working</b></summary>
 
 ```powershell
-# File detection with better model
-.\run.ps1 -ModelPath "models\yolov8s.pt" -SaveAnnotated
+# Test camera access
+python -c "import cv2; cap = cv2.VideoCapture(0); print('Camera available:', cap.isOpened()); cap.release()"
 
-# Camera detection with better model  
-.\camera.ps1 -Capture -ModelPath "models\yolov8m.pt" -SaveAnnotated
+# Try different camera index
+.\camera.ps1 -Capture -CameraIndex 1
 
-# Live camera with better model
-.\camera.ps1 -Live -ModelPath "models\yolov8s.pt" -SaveAnnotated
+# Check camera permissions in Windows Settings > Privacy & Security > Camera
 ```
+</details>
 
-### Custom Training (Advanced)
-For detecting specific objects not in the standard COCO dataset:
+<details>
+<summary><b>🚀 Performance Issues</b></summary>
 
+**Slow Detection:**
+- Use lighter model: `.\run.ps1 -ModelPath "models/yolov8n.pt"`
+- Reduce image size before processing
+- Close unnecessary applications
+- Enable GPU if available: `python main.py --device cuda`
+
+**High Memory Usage:**
+- Use nano model (YOLOv8n) instead of larger models
+- Process images individually instead of batch
+- Restart application periodically for long sessions
+</details>
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+### Quick Contribution Setup
 ```powershell
-# 1. Prepare training structure
-.\train.ps1 -Action prepare
+# Fork the repository on GitHub
+git clone https://github.com/YOUR_USERNAME/ObjectDetection.git
+cd ObjectDetection
 
-# 2. Collect and annotate your images using:
-#    - LabelImg: https://github.com/tzutalin/labelImg
-#    - Roboflow: https://roboflow.com/
-#    - Label Studio: https://labelstud.io/
+# Create feature branch
+git checkout -b feature/awesome-feature
 
-# 3. Train custom model
-.\train.ps1 -Action train -ClassNames "cat","dog","bird" -ProjectName "pets"
+# Make changes and test
+.\setup.ps1
+# ... make your changes ...
+
+# Submit pull request
+git add .
+git commit -m "Add awesome feature"
+git push origin feature/awesome-feature
 ```
 
-### Performance Benchmarking
-Compare different models on your specific images:
+## 📄 License
 
-```powershell
-# Test single image with all available models
-python improve_model.py --demo --image "input\your_image.jpg"
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-# Batch test multiple images
-python improve_model.py --batch_dir "input"
-```
+## 🙏 Acknowledgments
+
+- **[Ultralytics](https://ultralytics.com)** - For the amazing YOLOv8 implementation
+- **[OpenCV](https://opencv.org)** - For computer vision utilities
+- **[Flask](https://flask.palletsprojects.com)** - For the web interface framework
+
+## 📞 Support
+
+- 📖 **Documentation**: Check our [Wiki](https://github.com/YOUR_USERNAME/ObjectDetection/wiki)
+- 🐛 **Bug Reports**: [Open an issue](https://github.com/YOUR_USERNAME/ObjectDetection/issues)
+- 💡 **Feature Requests**: [Request a feature](https://github.com/YOUR_USERNAME/ObjectDetection/issues)
+- 💬 **Discussions**: [Join the discussion](https://github.com/YOUR_USERNAME/ObjectDetection/discussions)
+
+---
+
+<div align="center">
+
+**⭐ Star this repository if you find it helpful!**
+
+[Report Bug](https://github.com/YOUR_USERNAME/ObjectDetection/issues) • [Request Feature](https://github.com/YOUR_USERNAME/ObjectDetection/issues) • [Contribute](CONTRIBUTING.md)
+
+</div>
