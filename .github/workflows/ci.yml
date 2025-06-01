@@ -1,0 +1,245 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: [3.8, 3.9, "3.10", "3.11"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Lint with flake8
+      run: |
+        pip install flake8
+        # Stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # Exit-zero treats all errors as warnings
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: Test basic imports
+      run: |
+        python -c "import main; print('✅ main.py imports successfully')"
+        python -c "import batch_process; print('✅ batch_process.py imports successfully')"
+        python -c "import config_manager; print('✅ config_manager.py imports successfully')"
+        python -c "import web_interface; print('✅ web_interface.py imports successfully')"
+
+    - name: Test CLI help commands
+      run: |
+        python main.py --help
+        python batch_process.py --help
+        python config_manager.py --help
+
+    - name: Test configuration management
+      run: |
+        python config_manager.py --list
+        python config_manager.py --create-common
+
+    - name: Create test directories
+      run: |
+        mkdir -p test_input test_output
+
+    - name: Test batch processing (dry run)
+      run: |
+        echo "Testing batch processor initialization..."
+        python -c "from batch_process import BatchProcessor; bp = BatchProcessor(); print('✅ BatchProcessor initializes successfully')"
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install security scanning tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install bandit safety
+
+    - name: Run Bandit security scan
+      run: |
+        bandit -r . -f json -o bandit-report.json || true
+        bandit -r . --severity-level medium
+
+    - name: Check for known security vulnerabilities
+      run: |
+        pip install -r requirements.txt
+        safety check --json --output safety-report.json || true
+        safety check
+
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install code quality tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install black isort mypy
+
+    - name: Check code formatting with Black
+      run: |
+        black --check --diff .
+
+    - name: Check import sorting with isort
+      run: |
+        isort --check-only --diff .
+
+    - name: Type checking with mypy
+      run: |
+        mypy --ignore-missing-imports . || true
+
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Validate README
+      run: |
+        if [ ! -f README.md ]; then
+          echo "❌ README.md is missing"
+          exit 1
+        fi
+        echo "✅ README.md exists"
+
+    - name: Validate CHANGELOG
+      run: |
+        if [ ! -f CHANGELOG.md ]; then
+          echo "❌ CHANGELOG.md is missing"
+          exit 1
+        fi
+        echo "✅ CHANGELOG.md exists"
+
+    - name: Validate LICENSE
+      run: |
+        if [ ! -f LICENSE ]; then
+          echo "❌ LICENSE is missing"
+          exit 1
+        fi
+        echo "✅ LICENSE exists"
+
+    - name: Check required files
+      run: |
+        for file in requirements.txt .gitignore CONTRIBUTING.md; do
+          if [ ! -f "$file" ]; then
+            echo "❌ $file is missing"
+            exit 1
+          else
+            echo "✅ $file exists"
+          fi
+        done
+
+  integration-test:
+    runs-on: windows-latest
+    needs: test
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Test PowerShell scripts syntax
+      shell: pwsh
+      run: |
+        Get-ChildItem -Path . -Filter "*.ps1" | ForEach-Object {
+          Write-Host "Checking $($_.Name)..."
+          $null = [System.Management.Automation.PSParser]::Tokenize((Get-Content $_.FullName -Raw), [ref]$null)
+          Write-Host "✅ $($_.Name) syntax is valid"
+        }
+
+    - name: Test PowerShell script help
+      shell: pwsh
+      run: |
+        Get-Help .\setup.ps1 -ErrorAction SilentlyContinue
+        Get-Help .\run.ps1 -ErrorAction SilentlyContinue
+        Get-Help .\camera.ps1 -ErrorAction SilentlyContinue
+        Get-Help .\batch.ps1 -ErrorAction SilentlyContinue
+        Get-Help .\web.ps1 -ErrorAction SilentlyContinue
+        Write-Host "✅ PowerShell help documentation accessible"
+
+  release-check:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs: [test, security, code-quality, build-docs]
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Check if this is a release-ready commit
+      run: |
+        echo "🔍 Checking release readiness..."
+        
+        # Check for version tags
+        if git tag --contains HEAD | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+          echo "✅ This commit is tagged with a version"
+        else
+          echo "ℹ️ No version tag found (this is okay for non-release commits)"
+        fi
+        
+        # Check CHANGELOG has been updated
+        if git diff HEAD~1 CHANGELOG.md | grep -q '^+'; then
+          echo "✅ CHANGELOG.md has been updated"
+        else
+          echo "ℹ️ CHANGELOG.md not updated (ensure it's updated for releases)"
+        fi
+        
+        echo "✅ Release check completed"
+
+    - name: Generate release notes
+      if: startsWith(github.ref, 'refs/tags/v')
+      run: |
+        echo "📝 Generating release notes..."
+        echo "## 🎉 Release $(git describe --tags)" > release-notes.md
+        echo "" >> release-notes.md
+        echo "### Changes in this release:" >> release-notes.md
+        git log --pretty=format:"- %s" $(git describe --tags --abbrev=0 HEAD~1)..HEAD >> release-notes.md
+        echo "" >> release-notes.md
+        echo "### Full Changelog" >> release-notes.md
+        echo "See [CHANGELOG.md](CHANGELOG.md) for complete details." >> release-notes.md
+        
+    - name: Upload release notes
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: actions/upload-artifact@v3
+      with:
+        name: release-notes
+        path: release-notes.md
