@@ -116,9 +116,8 @@ def upload_file():
     
     if not allowed_file(file.filename):
         return jsonify({'error': 'File type not supported'}), 400
-    
-    # Get parameters
-    model_path = request.form.get('model', 'yolov8n.pt')
+      # Get parameters
+    model_path = request.form.get('model', 'models/yolov8n.pt')
     confidence = float(request.form.get('confidence', 0.25))
     
     try:
@@ -210,9 +209,8 @@ def camera_page():
 @app.route('/camera_capture', methods=['POST'])
 def camera_capture():
     """Capture from camera and detect with optimization"""
-    try:
-        # Get parameters
-        model_path = request.form.get('model', 'yolov8n.pt')
+    try:        # Get parameters
+        model_path = request.form.get('model', 'models/yolov8n.pt')
         confidence = float(request.form.get('confidence', 0.25))
         camera_index = int(request.form.get('camera_index', 0))
         
@@ -294,7 +292,7 @@ def camera_capture():
     except Exception as e:
         return jsonify({'error': f'Camera capture failed: {str(e)}'}), 500
 
-def generate_frames(camera_index=0, model_path='yolov8n.pt', confidence=0.25):
+def generate_frames(camera_index=0, model_path='models/yolov8n.pt', confidence=0.25):
     """Generate frames for live camera stream with performance optimizations"""
     global live_camera_active, live_frame, live_detections
     
@@ -388,7 +386,7 @@ def generate_frames(camera_index=0, model_path='yolov8n.pt', confidence=0.25):
 def camera_stream():
     """Video streaming route"""
     camera_index = int(request.args.get('camera_index', 0))
-    model_path = request.args.get('model', 'yolov8n.pt')
+    model_path = request.args.get('model', 'models/yolov8n.pt')
     confidence = float(request.args.get('confidence', 0.25))
     
     return Response(generate_frames(camera_index, model_path, confidence),
@@ -404,7 +402,7 @@ def start_live_detection():
     
     try:
         camera_index = int(request.form.get('camera_index', 0))
-        model_path = request.form.get('model', 'yolov8n.pt')
+        model_path = request.form.get('model', 'models/yolov8n.pt')
         confidence = float(request.form.get('confidence', 0.25))
         
         # Test camera access
@@ -548,10 +546,9 @@ def main():
     print(f"🎯 Device: {device}")
     print(f"⚡ Optimizations: Frame skipping, GPU acceleration, Model caching")
     print(f"📱 Features: File Upload, Live Camera, Performance Optimized")
-    
-    # Pre-load the fastest model for better first-time performance
+      # Pre-load the fastest model for better first-time performance
     print("🔄 Pre-loading YOLOv8n model...")
-    load_model('yolov8n.pt')
+    load_model('models/yolov8n.pt')
     print("✅ Ready to serve!")
     
     app.run(host=args.host, port=args.port, debug=args.debug, threaded=args.threaded)
