@@ -5,6 +5,33 @@ All notable changes to the ObjectDetection project will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2025-06-14
+
+### 🎨 Major UI Overhaul and System Cleanup
+
+#### Added
+- **Modern Web Interface Design**: Complete UI redesign with modern gradients, animations, and responsive layout
+- **Enhanced Navigation**: New navigation bar with improved user experience
+- **Drag-and-Drop Upload Zone**: Visual drag-and-drop interface with real-time feedback
+- **Interactive Confidence Slider**: Dynamic confidence threshold adjustment with visual feedback
+- **Animated Loading States**: Professional loading animations and progress indicators
+- **Improved Results Display**: Enhanced result visualization with better image handling
+
+#### Fixed
+- **Model Dropdown Duplicates**: Fixed duplicate model entries in dropdown lists
+- **Model Selection Logic**: Improved model availability detection and validation
+- **File Path Handling**: Better handling of model paths and file existence checks
+
+#### Removed
+- **Legacy Scripts**: Removed outdated `detect.ps1` script in favor of modern web interface
+- **Redundant Model Files**: Cleaned up duplicate model files in root directory
+- **Old Model Weights**: Removed obsolete `yolov8s.pt` from root to prevent confusion
+
+#### Improved
+- **Model Management**: Enhanced `get_available_models()` function with better duplicate detection
+- **User Experience**: Streamlined interface with intuitive controls and better visual feedback
+- **Code Organization**: Cleaner codebase with improved separation of concerns
+
 ## [2.1.0] - 2025-06-14
 
 ### ✨ Enhanced Web Interface with Live Camera Streaming
