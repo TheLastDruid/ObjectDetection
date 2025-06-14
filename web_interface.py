@@ -8,6 +8,7 @@ import os
 import json
 import cv2
 import base64
+import numpy as np
 from io import BytesIO
 from PIL import Image
 from flask import Flask, render_template, request, jsonify, send_file, flash, redirect, url_for, Response
@@ -18,9 +19,14 @@ from ultralytics import YOLO
 import tempfile
 import threading
 import time
+import torch
 
 app = Flask(__name__)
 app.secret_key = 'object_detection_secret_key'
+
+# Flask optimization settings
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 300  # Cache static files for 5 minutes
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
 # Configuration
 UPLOAD_FOLDER = 'web_uploads'
@@ -31,8 +37,10 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff', 'webp', 'mp4',
 Path(UPLOAD_FOLDER).mkdir(exist_ok=True)
 Path(OUTPUT_FOLDER).mkdir(exist_ok=True)
 
-# Global model storage
+# Global model storage with optimization
 models = {}
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+print(f"🚀 Using device: {device}")
 
 # Global variables for live camera
 live_camera_active = False
@@ -40,15 +48,32 @@ live_camera_thread = None
 live_frame = None
 live_detections = None
 
+# Performance optimization settings
+FRAME_SKIP = 2  # Process every 2nd frame for better performance
+MAX_FRAME_SIZE = (640, 480)  # Limit frame size for faster processing
+JPEG_QUALITY = 70  # Reduce quality for faster streaming
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def load_model(model_path):
-    """Load YOLO model with caching"""
+    """Load YOLO model with caching and optimization"""
     if model_path not in models:
         try:
-            models[model_path] = YOLO(model_path)
-            print(f"✅ Loaded model: {model_path}")
+            model = YOLO(model_path)
+            model.to(device)
+            
+            # Optimize model for inference
+            if device == 'cuda':
+                try:
+                    model.model.half()  # Use half precision for speed
+                    print(f"✅ Loaded model: {model_path} (GPU optimized)")
+                except:
+                    print(f"✅ Loaded model: {model_path} (GPU)")
+            else:
+                print(f"✅ Loaded model: {model_path} (CPU)")
+                
+            models[model_path] = model
         except Exception as e:
             print(f"❌ Error loading model {model_path}: {e}")
             return None
@@ -81,7 +106,7 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    """Handle file upload and detection"""
+    """Handle file upload and detection with optimization"""
     if 'file' not in request.files:
         return jsonify({'error': 'No file selected'}), 400
     
@@ -103,23 +128,41 @@ def upload_file():
         file_path = Path(UPLOAD_FOLDER) / f"{timestamp}_{filename}"
         file.save(file_path)
         
+        # Optimize image for faster processing
+        img = cv2.imread(str(file_path))
+        if img is not None:
+            height, width = img.shape[:2]
+            # Resize large images for faster processing
+            max_size = 1024
+            if width > max_size or height > max_size:
+                scale = min(max_size/width, max_size/height)
+                new_width = int(width * scale)
+                new_height = int(height * scale)
+                img = cv2.resize(img, (new_width, new_height))
+                cv2.imwrite(str(file_path), img)
+        
         # Load model
         model = load_model(model_path)
         if model is None:
             return jsonify({'error': f'Could not load model: {model_path}'}), 500
         
-        # Run detection
-        results = model(str(file_path), conf=confidence)
+        # Run detection with optimized settings
+        results = model(str(file_path), 
+                       conf=confidence, 
+                       iou=0.5,
+                       verbose=False,
+                       device=device)
         result = results[0]
         
         # Generate annotated image
         annotated_img = result.plot()
         
-        # Convert to base64 for web display
-        _, buffer = cv2.imencode('.jpg', annotated_img)
+        # Convert to base64 for web display with optimized quality
+        encode_params = [cv2.IMWRITE_JPEG_QUALITY, 85]
+        _, buffer = cv2.imencode('.jpg', annotated_img, encode_params)
         img_base64 = base64.b64encode(buffer).decode('utf-8')
         
-        # Prepare detection data
+        # Prepare detection data (simplified for speed)
         detections = []
         if result.boxes is not None:
             for box in result.boxes:
@@ -166,7 +209,7 @@ def camera_page():
 
 @app.route('/camera_capture', methods=['POST'])
 def camera_capture():
-    """Capture from camera and detect"""
+    """Capture from camera and detect with optimization"""
     try:
         # Get parameters
         model_path = request.form.get('model', 'yolov8n.pt')
@@ -178,10 +221,18 @@ def camera_capture():
         if model is None:
             return jsonify({'error': f'Could not load model: {model_path}'}), 500
         
-        # Capture from camera
+        # Capture from camera with optimization
         cap = cv2.VideoCapture(camera_index)
         if not cap.isOpened():
             return jsonify({'error': f'Could not open camera {camera_index}'}), 500
+        
+        # Set optimal capture settings
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, MAX_FRAME_SIZE[0])
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, MAX_FRAME_SIZE[1])
+        
+        # Warm up camera
+        for _ in range(3):
+            cap.read()
         
         ret, frame = cap.read()
         cap.release()
@@ -189,15 +240,28 @@ def camera_capture():
         if not ret:
             return jsonify({'error': 'Failed to capture frame'}), 500
         
-        # Run detection
-        results = model(frame, conf=confidence)
+        # Resize if needed for faster processing
+        height, width = frame.shape[:2]
+        if width > MAX_FRAME_SIZE[0] or height > MAX_FRAME_SIZE[1]:
+            scale = min(MAX_FRAME_SIZE[0]/width, MAX_FRAME_SIZE[1]/height)
+            new_width = int(width * scale)
+            new_height = int(height * scale)
+            frame = cv2.resize(frame, (new_width, new_height))
+        
+        # Run detection with optimized settings
+        results = model(frame, 
+                       conf=confidence, 
+                       iou=0.5,
+                       verbose=False,
+                       device=device)
         result = results[0]
         
         # Generate annotated image
         annotated_img = result.plot()
         
-        # Convert to base64
-        _, buffer = cv2.imencode('.jpg', annotated_img)
+        # Convert to base64 with optimized quality
+        encode_params = [cv2.IMWRITE_JPEG_QUALITY, 85]
+        _, buffer = cv2.imencode('.jpg', annotated_img, encode_params)
         img_base64 = base64.b64encode(buffer).decode('utf-8')
         
         # Prepare detection data
@@ -231,7 +295,7 @@ def camera_capture():
         return jsonify({'error': f'Camera capture failed: {str(e)}'}), 500
 
 def generate_frames(camera_index=0, model_path='yolov8n.pt', confidence=0.25):
-    """Generate frames for live camera stream"""
+    """Generate frames for live camera stream with performance optimizations"""
     global live_camera_active, live_frame, live_detections
     
     # Load model
@@ -243,51 +307,79 @@ def generate_frames(camera_index=0, model_path='yolov8n.pt', confidence=0.25):
     if not cap.isOpened():
         return
     
+    # Optimize camera settings for speed
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, MAX_FRAME_SIZE[0])
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, MAX_FRAME_SIZE[1])
+    cap.set(cv2.CAP_PROP_FPS, 30)
+    cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)  # Reduce buffer for latest frame
+    
+    frame_count = 0
+    
     try:
         while live_camera_active:
             ret, frame = cap.read()
             if not ret:
                 break
             
-            # Run detection
-            results = model(frame, conf=confidence)
-            result = results[0]
+            frame_count += 1
             
-            # Generate annotated image
-            annotated_frame = result.plot()
+            # Skip frames for better performance
+            if frame_count % FRAME_SKIP == 0:
+                # Resize frame for faster processing
+                height, width = frame.shape[:2]
+                if width > MAX_FRAME_SIZE[0] or height > MAX_FRAME_SIZE[1]:
+                    scale = min(MAX_FRAME_SIZE[0]/width, MAX_FRAME_SIZE[1]/height)
+                    new_width = int(width * scale)
+                    new_height = int(height * scale)
+                    frame = cv2.resize(frame, (new_width, new_height))
+                
+                # Run detection with optimized settings
+                results = model(frame, 
+                              conf=confidence, 
+                              iou=0.5,  # Higher IOU for faster NMS
+                              verbose=False,
+                              device=device)
+                result = results[0]
+                
+                # Generate annotated image
+                annotated_frame = result.plot()
+                
+                # Store current frame and detections for other routes
+                live_frame = annotated_frame.copy()
+                
+                # Prepare detection data (simplified)
+                detections = []
+                if result.boxes is not None:
+                    for box in result.boxes:
+                        class_id = int(box.cls[0])
+                        confidence_score = float(box.conf[0])
+                        class_name = model.names[class_id]
+                        
+                        detections.append({
+                            'class': class_name,
+                            'confidence': round(confidence_score, 2)  # Reduced precision
+                        })
+                
+                live_detections = detections
+                
+                # Encode frame to JPEG with optimized quality
+                encode_params = [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY]
+                _, buffer = cv2.imencode('.jpg', annotated_frame, encode_params)
+                frame_bytes = buffer.tobytes()
+                
+                # Yield frame in multipart format
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+            else:
+                # For skipped frames, just encode the raw frame
+                encode_params = [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY]
+                _, buffer = cv2.imencode('.jpg', frame, encode_params)
+                frame_bytes = buffer.tobytes()
+                
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
             
-            # Store current frame and detections for other routes
-            live_frame = annotated_frame.copy()
-            
-            # Prepare detection data
-            detections = []
-            if result.boxes is not None:
-                for box in result.boxes:
-                    class_id = int(box.cls[0])
-                    confidence_score = float(box.conf[0])
-                    class_name = model.names[class_id]
-                    bbox = box.xyxy[0].tolist()
-                    
-                    detections.append({
-                        'class': class_name,
-                        'confidence': round(confidence_score, 3),
-                        'bbox': {
-                            'x1': round(bbox[0], 1), 'y1': round(bbox[1], 1),
-                            'x2': round(bbox[2], 1), 'y2': round(bbox[3], 1)
-                        }
-                    })
-            
-            live_detections = detections
-            
-            # Encode frame to JPEG
-            _, buffer = cv2.imencode('.jpg', annotated_frame)
-            frame_bytes = buffer.tobytes()
-            
-            # Yield frame in multipart format
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-            
-            time.sleep(0.1)  # Control frame rate
+            time.sleep(0.03)  # ~30 FPS cap
             
     finally:
         cap.release()
@@ -441,20 +533,28 @@ def get_available_cameras():
     })
 
 def main():
-    """Run the web application"""
+    """Run the web application with optimizations"""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Object Detection Web Interface")
+    parser = argparse.ArgumentParser(description="Fast Object Detection Web Interface")
     parser.add_argument("--host", default="127.0.0.1", help="Host to bind to")
     parser.add_argument("--port", type=int, default=5000, help="Port to bind to")
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
+    parser.add_argument("--threaded", action="store_true", default=True, help="Enable threading")
     args = parser.parse_args()
     
-    print(f"🌐 Starting Object Detection Web Interface")
+    print(f"🚀 Starting Fast Object Detection Web Interface")
     print(f"🔗 Access at: http://{args.host}:{args.port}")
-    print(f"📱 Features: File Upload, Camera Capture, Model Management")
+    print(f"🎯 Device: {device}")
+    print(f"⚡ Optimizations: Frame skipping, GPU acceleration, Model caching")
+    print(f"📱 Features: File Upload, Live Camera, Performance Optimized")
     
-    app.run(host=args.host, port=args.port, debug=args.debug)
+    # Pre-load the fastest model for better first-time performance
+    print("🔄 Pre-loading YOLOv8n model...")
+    load_model('yolov8n.pt')
+    print("✅ Ready to serve!")
+    
+    app.run(host=args.host, port=args.port, debug=args.debug, threaded=args.threaded)
 
 if __name__ == "__main__":
     main()
