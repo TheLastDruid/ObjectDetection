@@ -116,8 +116,9 @@ def upload_file():
     
     if not allowed_file(file.filename):
         return jsonify({'error': 'File type not supported'}), 400
-      # Get parameters
-    model_path = request.form.get('model', 'models/yolov8n.pt')
+    
+    # Get parameters
+    model_path = request.form.get('model', 'models/yolov8m.pt')
     confidence = float(request.form.get('confidence', 0.25))
     
     try:
@@ -209,8 +210,9 @@ def camera_page():
 @app.route('/camera_capture', methods=['POST'])
 def camera_capture():
     """Capture from camera and detect with optimization"""
-    try:        # Get parameters
-        model_path = request.form.get('model', 'models/yolov8n.pt')
+    try:
+        # Get parameters
+        model_path = request.form.get('model', 'models/yolov8m.pt')
         confidence = float(request.form.get('confidence', 0.25))
         camera_index = int(request.form.get('camera_index', 0))
         
@@ -292,7 +294,7 @@ def camera_capture():
     except Exception as e:
         return jsonify({'error': f'Camera capture failed: {str(e)}'}), 500
 
-def generate_frames(camera_index=0, model_path='models/yolov8n.pt', confidence=0.25):
+def generate_frames(camera_index=0, model_path='models/yolov8m.pt', confidence=0.25):
     """Generate frames for live camera stream with performance optimizations"""
     global live_camera_active, live_frame, live_detections
     
@@ -386,7 +388,7 @@ def generate_frames(camera_index=0, model_path='models/yolov8n.pt', confidence=0
 def camera_stream():
     """Video streaming route"""
     camera_index = int(request.args.get('camera_index', 0))
-    model_path = request.args.get('model', 'models/yolov8n.pt')
+    model_path = request.args.get('model', 'models/yolov8m.pt')
     confidence = float(request.args.get('confidence', 0.25))
     
     return Response(generate_frames(camera_index, model_path, confidence),
@@ -402,7 +404,7 @@ def start_live_detection():
     
     try:
         camera_index = int(request.form.get('camera_index', 0))
-        model_path = request.form.get('model', 'models/yolov8n.pt')
+        model_path = request.form.get('model', 'models/yolov8m.pt')
         confidence = float(request.form.get('confidence', 0.25))
         
         # Test camera access
@@ -528,6 +530,43 @@ def get_available_cameras():
     return jsonify({
         'success': True,
         'cameras': cameras
+    })
+
+# Debug routes for camera testing
+@app.route('/test_camera')
+def test_camera():
+    """Test camera access"""
+    import cv2
+    
+    try:
+        cap = cv2.VideoCapture(0)
+        if not cap.isOpened():
+            return jsonify({'success': False, 'error': 'Cannot open camera'})
+        
+        ret, frame = cap.read()
+        cap.release()
+        
+        if not ret:
+            return jsonify({'success': False, 'error': 'Cannot read from camera'})
+        
+        return jsonify({
+            'success': True, 
+            'message': f'Camera working! Frame size: {frame.shape}'
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/debug_live_status')
+def debug_live_status():
+    """Debug live detection status"""
+    global live_camera_active, live_frame, live_detections
+    
+    return jsonify({
+        'live_camera_active': live_camera_active,
+        'live_frame_available': live_frame is not None,
+        'live_detections_count': len(live_detections) if live_detections else 0,
+        'available_models': get_available_models()
     })
 
 def main():

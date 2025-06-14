@@ -79,7 +79,7 @@ class ModelTrainer:
         
         return True
     
-    def train_custom_model(self, base_model="yolov8n.pt", epochs=100, imgsz=640, batch=16):
+    def train_custom_model(self, base_model="models/yolov8n.pt", epochs=100, imgsz=640, batch=16):
         """
         Train a custom YOLOv8 model
         """
@@ -134,7 +134,7 @@ class ModelTrainer:
             print(f"❌ Training failed: {e}")
             return None
     
-    def fine_tune_pretrained(self, base_model="yolov8s.pt", learning_rate=0.001, epochs=50):
+    def fine_tune_pretrained(self, base_model="models/yolov8s.pt", learning_rate=0.001, epochs=50):
         """
         Fine-tune a pretrained model with lower learning rate
         """
@@ -294,9 +294,8 @@ def main():
     parser = argparse.ArgumentParser(description="YOLOv8 Model Training and Improvement")
     parser.add_argument("--action", choices=['train', 'finetune', 'evaluate', 'compare'], required=True,
                         help="Action to perform")
-    parser.add_argument("--project_name", default="custom_training",
-                        help="Name for the training project")
-    parser.add_argument("--base_model", default="yolov8n.pt",
+    parser.add_argument("--project_name", default="custom_training",                        help="Name for the training project")
+    parser.add_argument("--base_model", default="models/yolov8n.pt",
                         help="Base model to train from")
     parser.add_argument("--epochs", type=int, default=100,
                         help="Number of training epochs")

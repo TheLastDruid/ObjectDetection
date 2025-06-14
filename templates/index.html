@@ -730,15 +730,14 @@
                 <form id="uploadForm" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="model" class="form-label">AI Model</label>
-                        <select id="model" name="model" class="form-select">
-                            {% for model in models %}
+                        <select id="model" name="model" class="form-select">                            {% for model in models %}
                                 {% set model_name = model.split('/')[-1].replace('.pt', '') %}
                                 {% if 'yolov8n' in model %}
                                     <option value="{{ model }}">YOLOv8 Nano - Fastest ({{ model_name }})</option>
                                 {% elif 'yolov8s' in model %}
                                     <option value="{{ model }}">YOLOv8 Small - Fast ({{ model_name }})</option>
                                 {% elif 'yolov8m' in model %}
-                                    <option value="{{ model }}">YOLOv8 Medium - Balanced ({{ model_name }})</option>
+                                    <option value="{{ model }}" selected>YOLOv8 Medium - Balanced ⭐ ({{ model_name }})</option>
                                 {% elif 'yolov8l' in model %}
                                     <option value="{{ model }}">YOLOv8 Large - High Accuracy ({{ model_name }})</option>
                                 {% elif 'yolov8x' in model %}

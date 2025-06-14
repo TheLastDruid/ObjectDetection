@@ -38,9 +38,11 @@ env/
 .ipynb_checkpoints
 
 # Model files (large files that shouldn't be in git)
-*.pt
-!yolov8n.pt
-!yolov8s.pt
+# Ignore model files in root directory to prevent duplicates
+/*.pt
+
+# Allow models in models/ directory
+!models/*.pt
 
 # Output directories
 output/
