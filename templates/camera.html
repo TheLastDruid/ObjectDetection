@@ -3,103 +3,840 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Camera Detection</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <title>AI Vision - Live Camera Detection</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --warning-gradient: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%);
+            --dark-bg: #0a0a0f;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.5);
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--dark-bg);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: var(--dark-bg);
+        }
+
+        .background-animation::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(75, 172, 254, 0.05) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .floating-element {
+            position: absolute;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            opacity: 0.05;
+            animation: float-element 15s ease-in-out infinite;
+        }
+
+        .floating-element:nth-child(1) {
+            width: 120px;
+            height: 120px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-element:nth-child(2) {
+            width: 80px;
+            height: 80px;
+            top: 60%;
+            right: 10%;
+            animation-delay: 5s;
+        }
+
+        .floating-element:nth-child(3) {
+            width: 150px;
+            height: 150px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        @keyframes float-element {
+            0%, 100% { transform: translateY(0px) translateX(0px) scale(1); }
+            33% { transform: translateY(-30px) translateX(30px) scale(1.1); }
+            66% { transform: translateY(30px) translateX(-30px) scale(0.9); }
+        }
+
+        /* Header */
+        .navbar {
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(25px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            letter-spacing: -0.02em;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            transform: translateY(-2px);
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+        }
+
+        .navbar-nav {
+            display: flex;
+            gap: 0;
+            background: var(--glass-bg);
+            border-radius: 50px;
+            padding: 0.5rem;
+            border: 1px solid var(--glass-border);
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border-radius: 25px;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .nav-link.active {
+            color: var(--text-primary);
+            background: var(--primary-gradient);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            padding: 4rem 2rem 3rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-title {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 3rem;
+            backdrop-filter: blur(25px);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--primary-gradient);
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+
+        .card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-gradient);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-select, .form-range {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-select:focus, .form-range:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-select option {
+            background: var(--dark-bg);
+            color: var(--text-primary);
+        }
+
+        .form-range {
+            height: 6px;
+            background: var(--glass-bg);
+            appearance: none;
+            padding: 0;
+            border-radius: 3px;
+        }
+
+        .form-range::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .form-range::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success-gradient);
+            color: white;
+            box-shadow: 0 8px 32px rgba(17, 153, 142, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(17, 153, 142, 0.4);
+        }
+
+        .btn-danger {
+            background: var(--warning-gradient);
+            color: white;
+            box-shadow: 0 8px 32px rgba(252, 74, 26, 0.3);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(252, 74, 26, 0.4);
+        }
+
+        .btn-info {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 8px 32px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--card-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Live Controls */
+        .live-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .live-controls .btn {
+            flex: 1;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        /* Stream Container */
+        .stream-container {
+            background: var(--glass-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .stream-image {
+            max-width: 100%;
+            max-height: 350px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .stream-placeholder {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .stream-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        /* Status Indicator */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .status-live {
+            background: rgba(17, 153, 142, 0.2);
+            color: #38ef7d;
+            border: 1px solid rgba(56, 239, 125, 0.3);
+        }
+
+        .status-stopped {
+            background: rgba(155, 155, 155, 0.2);
+            color: #9b9b9b;
+            border: 1px solid rgba(155, 155, 155, 0.3);
+        }
+
+        .status-indicator::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Objects Display */
+        .objects-display {
+            background: var(--glass-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .objects-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .objects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .object-item {
+            background: var(--glass-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 0.75rem;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+
+        .object-count {
+            font-weight: 700;
+            color: var(--text-primary);
+            display: block;
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .object-name {
+            color: var(--text-secondary);
+            text-transform: capitalize;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .navbar-nav {
+                display: none;
+            }
+
+            .card {
+                padding: 2rem;
+            }
+
+            .live-controls {
+                flex-direction: column;
+            }
+
+            .live-controls .btn {
+                flex: none;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-gradient);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-gradient);
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">🎯 Object Detection</a>
-            <div class="navbar-nav">
-                <a class="nav-link" href="/">Upload</a>
-                <a class="nav-link active" href="/camera">Camera</a>
-                <a class="nav-link" href="/models">Models</a>
+    <!-- Background Animation -->
+    <div class="background-animation"></div>
+    <div class="floating-elements">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="navbar-brand">
+                <div class="brand-icon">
+                    <i class="fas fa-video"></i>
+                </div>
+                AI Vision
+            </a>            <div class="navbar-nav">
+                <a href="/" class="nav-link">Detection</a>
+                <a href="/camera" class="nav-link active">Camera</a>
+                <a href="/" class="nav-link" id="featuresLink">Features</a>
             </div>
         </div>
     </nav>
 
-    <div class="container my-5">
-        <div class="row">
-            <div class="col-md-6">
-                <h2>Camera Detection</h2>
+    <!-- Hero Section -->
+
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="main-grid">
+            <!-- Camera Controls -->
+            <div class="card animate-fade-in">
+                <div class="card-icon">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <h2 class="card-title">📸 Photo Capture</h2>
+                <p class="card-description">
+                    Take high-quality photos with instant object detection. Perfect for single-shot analysis and documentation.
+                </p>
+
                 <form id="cameraForm">
-                    <div class="mb-3">
-                        <label for="model" class="form-label">Model</label>
+                    <div class="form-group">
+                        <label for="model" class="form-label">AI Model</label>
                         <select id="model" name="model" class="form-select">
                             {% for model in models %}
-                            <option value="{{ model }}">{{ model }}</option>
+                                {% set model_name = model.split('/')[-1].replace('.pt', '') %}
+                                {% if 'yolov8n' in model %}
+                                    <option value="{{ model }}">YOLOv8 Nano - Fastest ({{ model_name }})</option>
+                                {% elif 'yolov8s' in model %}
+                                    <option value="{{ model }}">YOLOv8 Small - Fast ({{ model_name }})</option>
+                                {% elif 'yolov8m' in model %}
+                                    <option value="{{ model }}">YOLOv8 Medium - Balanced ({{ model_name }})</option>
+                                {% elif 'yolov8l' in model %}
+                                    <option value="{{ model }}">YOLOv8 Large - High Accuracy ({{ model_name }})</option>
+                                {% elif 'yolov8x' in model %}
+                                    <option value="{{ model }}">YOLOv8 XLarge - Maximum Accuracy ({{ model_name }})</option>
+                                {% else %}
+                                    <option value="{{ model }}">{{ model_name.upper() }}</option>
+                                {% endif %}
                             {% endfor %}
                         </select>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label for="confidence" class="form-label">Confidence Threshold</label>
-                        <input type="range" id="confidence" name="confidence" class="form-range" min="0.1" max="1.0" step="0.05" value="0.25">
-                        <small class="text-muted">Value: <span id="confidenceValue">0.25</span></small>
+
+                    <div class="form-group">
+                        <label for="confidence" class="form-label">Confidence Threshold: <span id="confidenceValue">0.25</span></label>
+                        <input type="range" id="confidence" name="confidence" min="0.1" max="1.0" step="0.05" value="0.25" class="form-range">
                     </div>
-                    
-                    <div class="mb-3">
-                        <label for="camera_index" class="form-label">Camera Index</label>
-                        <input type="number" id="camera_index" name="camera_index" class="form-control" value="0" min="0" max="9">
-                    </div>
-                      <button type="submit" class="btn btn-primary">📷 Capture & Detect</button>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-camera"></i>
+                        Take Photo
+                    </button>
                 </form>
-                
-                <hr class="my-4">
-                
-                <h3>Live Camera Detection</h3>
-                <div id="liveControls">
-                    <button id="startLiveBtn" class="btn btn-success">🔴 Start Live Detection</button>
-                    <button id="stopLiveBtn" class="btn btn-danger" style="display: none;">⏹️ Stop Live Detection</button>
-                    <button id="captureLiveBtn" class="btn btn-info" style="display: none;">📸 Capture Frame</button>
+
+                <!-- Live Detection Section -->
+                <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--card-border);">
+                    <h3 class="card-title">🔴 Live Detection</h3>
+                    <div class="live-controls">
+                        <button id="startLiveBtn" class="btn btn-success">
+                            <i class="fas fa-play"></i>
+                            Start Live
+                        </button>
+                        <button id="stopLiveBtn" class="btn btn-danger" style="display: none;">
+                            <i class="fas fa-stop"></i>
+                            Stop Live
+                        </button>
+                        <button id="captureLiveBtn" class="btn btn-info" style="display: none;">
+                            <i class="fas fa-camera"></i>
+                            Capture Frame
+                        </button>
+                    </div>
                 </div>
             </div>
-              <div class="col-md-6">
-                <div id="liveStream" style="display: none;">
-                    <h3>🔴 Live Detection Stream</h3>
-                    <img id="liveStreamImage" class="img-fluid mb-3" style="width: 100%; height: auto; border: 2px solid #007bff;">
-                    <div id="liveDetectionInfo" class="alert alert-info">
-                        <strong>Status:</strong> <span id="liveStatus">Initializing...</span>
+
+            <!-- Live Stream Display -->
+            <div class="card animate-fade-in">
+                <div class="card-icon">
+                    <i class="fas fa-desktop"></i>
+                </div>
+                <h2 class="card-title">🎥 Live Stream</h2>
+                <p class="card-description">
+                    Watch real-time object detection with live camera feed. Objects are highlighted with bounding boxes and confidence scores.
+                </p>
+
+                <div id="liveStream" class="stream-container">
+                    <div class="stream-placeholder">
+                        <i class="fas fa-video"></i>
+                        <p>Click "Start Live" to begin camera detection</p>
                     </div>
-                    <div id="liveObjects"></div>
+                    <img id="liveStreamImage" class="stream-image" style="display: none;">
+                    <div class="status-indicator status-stopped" id="liveStatus">
+                        <span>Camera Stopped</span>
+                    </div>
                 </div>
-                
-                <div id="results" style="display: none;">
-                    <h3>Detection Results</h3>
-                    <img id="resultImage" class="img-fluid mb-3">
-                    <div id="detectionInfo"></div>
-                </div>
-                
-                <div id="loading" style="display: none;">
-                    <div class="text-center">
-                        <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Capturing...</span>
-                        </div>
-                        <p class="mt-2">Capturing from camera...</p>
+
+                <!-- Objects Display -->
+                <div id="liveObjects" class="objects-display" style="display: none;">
+                    <h4 class="objects-title">Detected Objects</h4>
+                    <div id="objectsGrid" class="objects-grid">
+                        <!-- Objects will be populated here -->
                     </div>
                 </div>
             </div>
         </div>
-    </div>    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+
+        <!-- Results Grid for Photo Captures -->
+        <div id="photoResults" class="main-grid" style="margin-top: 3rem; display: none;">
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-image"></i>
+                </div>
+                <h2 class="card-title">📷 Captured Photo</h2>
+                <div class="stream-container">
+                    <img id="capturedImage" class="stream-image" alt="Captured Photo">
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h2 class="card-title">📊 Detection Results</h2>
+                <div id="photoObjectsDisplay" class="objects-display">
+                    <h4 class="objects-title">Analysis Results</h4>
+                    <div id="photoObjectsGrid" class="objects-grid">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <a id="downloadPhotoBtn" class="btn btn-primary" style="flex: 1;" download>
+                        <i class="fas fa-download"></i>
+                        Download
+                    </a>
+                    <a id="viewPhotoJsonBtn" class="btn btn-secondary" style="flex: 1;">
+                        <i class="fas fa-code"></i>
+                        View JSON
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
     <script>
+        // Global variables
         let liveDetectionActive = false;
-        let statusInterval;
+        let liveDetectionInterval = null;
+
+        // Update confidence value display
+        const confidenceSlider = document.getElementById('confidence');
+        const confidenceValue = document.getElementById('confidenceValue');
         
-        document.getElementById('confidence').addEventListener('input', function() {
-            document.getElementById('confidenceValue').textContent = this.value;
+        confidenceSlider.addEventListener('input', function() {
+            confidenceValue.textContent = this.value;
         });
+
+        // Form elements
+        const cameraForm = document.getElementById('cameraForm');
+        const photoResults = document.getElementById('photoResults');
 
         // Live Detection Functions
         document.getElementById('startLiveBtn').addEventListener('click', function() {
-            const model = document.getElementById('model').value;
-            const confidence = document.getElementById('confidence').value;
-            const cameraIndex = document.getElementById('camera_index').value;
-            
+            startLiveDetection();
+        });
+
+        document.getElementById('stopLiveBtn').addEventListener('click', function() {
+            stopLiveDetection();
+        });
+
+        document.getElementById('captureLiveBtn').addEventListener('click', function() {
+            captureLiveFrame();
+        });
+
+        // Photo capture form submission
+        cameraForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            capturePhoto();
+        });
+
+        function startLiveDetection() {
             const formData = new FormData();
-            formData.append('model', model);
-            formData.append('confidence', confidence);
-            formData.append('camera_index', cameraIndex);
-            
+            formData.append('camera_index', '0');
+            formData.append('model', document.getElementById('model').value);
+            formData.append('confidence', document.getElementById('confidence').value);
+
             fetch('/start_live_detection', {
                 method: 'POST',
                 body: formData
@@ -108,100 +845,139 @@
             .then(data => {
                 if (data.success) {
                     liveDetectionActive = true;
-                    document.getElementById('startLiveBtn').style.display = 'none';
-                    document.getElementById('stopLiveBtn').style.display = 'inline-block';
-                    document.getElementById('captureLiveBtn').style.display = 'inline-block';
-                    document.getElementById('liveStream').style.display = 'block';
-                    document.getElementById('results').style.display = 'none';
-                    
-                    // Start the live stream
-                    document.getElementById('liveStreamImage').src = data.stream_url;
-                    document.getElementById('liveStatus').textContent = 'Live detection active';
-                    
-                    // Start status updates
-                    statusInterval = setInterval(updateLiveStatus, 1000);
+                    updateLiveControls();
+                    updateLiveStatus('live', 'Live Detection Active');
+                    startLiveStream();
                 } else {
-                    alert('Error: ' + data.error);
+                    alert('Error starting live detection: ' + data.message);
                 }
             })
             .catch(error => {
-                alert('Error starting live detection: ' + error);
+                console.error('Error:', error);
+                alert('Error starting live detection');
             });
-        });
-        
-        document.getElementById('stopLiveBtn').addEventListener('click', function() {
+        }
+
+        function stopLiveDetection() {
             fetch('/stop_live_detection', {
                 method: 'POST'
             })
             .then(response => response.json())
             .then(data => {
                 liveDetectionActive = false;
-                document.getElementById('startLiveBtn').style.display = 'inline-block';
-                document.getElementById('stopLiveBtn').style.display = 'none';
-                document.getElementById('captureLiveBtn').style.display = 'none';
-                document.getElementById('liveStream').style.display = 'none';
-                
-                if (statusInterval) {
-                    clearInterval(statusInterval);
-                }
+                updateLiveControls();
+                updateLiveStatus('stopped', 'Camera Stopped');
+                stopLiveStream();
+                showStreamPlaceholder();
             })
             .catch(error => {
-                alert('Error stopping live detection: ' + error);
-            });
-        });
-        
-        document.getElementById('captureLiveBtn').addEventListener('click', function() {
-            fetch('/capture_live_frame', {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Frame captured and saved!');
-                } else {
-                    alert('Error: ' + data.error);
-                }
-            })
-            .catch(error => {
-                alert('Error capturing frame: ' + error);
-            });
-        });
-        
-        function updateLiveStatus() {
-            if (!liveDetectionActive) return;
-            
-            fetch('/live_detection_status')
-            .then(response => response.json())
-            .then(data => {
-                if (data.active) {
-                    document.getElementById('liveStatus').textContent = `Active - ${data.objects_count} objects detected`;
-                    
-                    let objectsHtml = '';
-                    if (data.detections.length > 0) {
-                        objectsHtml = '<div class="mt-2"><small><strong>Current Objects:</strong><br>';
-                        data.detections.forEach(det => {
-                            objectsHtml += `${det.class} (${(det.confidence * 100).toFixed(1)}%), `;
-                        });
-                        objectsHtml = objectsHtml.slice(0, -2) + '</small></div>';
-                    }
-                    document.getElementById('liveObjects').innerHTML = objectsHtml;
-                } else {
-                    document.getElementById('liveStatus').textContent = 'Stopped';
-                    liveDetectionActive = false;
-                }
-            })
-            .catch(error => {
-                console.log('Status update error:', error);
+                console.error('Error:', error);
             });
         }
 
-        document.getElementById('cameraForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        function startLiveStream() {
+            const liveStreamImage = document.getElementById('liveStreamImage');
+            const streamPlaceholder = document.querySelector('.stream-placeholder');
             
-            const formData = new FormData(this);
+            streamPlaceholder.style.display = 'none';
+            liveStreamImage.style.display = 'block';
             
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('results').style.display = 'none';
+            // Update stream every second
+            liveDetectionInterval = setInterval(() => {
+                if (liveDetectionActive) {
+                    const timestamp = new Date().getTime();
+                    liveStreamImage.src = `/camera_feed?t=${timestamp}`;
+                    updateDetectedObjects();
+                }
+            }, 1000);
+        }
+
+        function stopLiveStream() {
+            if (liveDetectionInterval) {
+                clearInterval(liveDetectionInterval);
+                liveDetectionInterval = null;
+            }
+        }
+
+        function showStreamPlaceholder() {
+            const liveStreamImage = document.getElementById('liveStreamImage');
+            const streamPlaceholder = document.querySelector('.stream-placeholder');
+            
+            liveStreamImage.style.display = 'none';
+            streamPlaceholder.style.display = 'block';
+            
+            // Hide objects display
+            document.getElementById('liveObjects').style.display = 'none';
+        }
+
+        function updateLiveControls() {
+            const startBtn = document.getElementById('startLiveBtn');
+            const stopBtn = document.getElementById('stopLiveBtn');
+            const captureBtn = document.getElementById('captureLiveBtn');
+            
+            if (liveDetectionActive) {
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'inline-flex';
+                captureBtn.style.display = 'inline-flex';
+            } else {
+                startBtn.style.display = 'inline-flex';
+                stopBtn.style.display = 'none';
+                captureBtn.style.display = 'none';
+            }
+        }
+
+        function updateLiveStatus(status, text) {
+            const statusElement = document.getElementById('liveStatus');
+            statusElement.className = `status-indicator status-${status}`;
+            statusElement.innerHTML = `<span>${text}</span>`;
+        }
+
+        function updateDetectedObjects() {
+            fetch('/get_live_detections')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.detections) {
+                        displayLiveObjects(data.detections);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching detections:', error);
+                });
+        }
+
+        function displayLiveObjects(detections) {
+            const objectsDisplay = document.getElementById('liveObjects');
+            const objectsGrid = document.getElementById('objectsGrid');
+            
+            if (detections.length === 0) {
+                objectsDisplay.style.display = 'none';
+                return;
+            }
+            
+            objectsDisplay.style.display = 'block';
+            
+            // Count objects by class
+            const objectCounts = {};
+            detections.forEach(detection => {
+                const className = detection.class || 'unknown';
+                objectCounts[className] = (objectCounts[className] || 0) + 1;
+            });
+            
+            // Display object counts
+            objectsGrid.innerHTML = '';
+            Object.entries(objectCounts).forEach(([className, count]) => {
+                const objectItem = document.createElement('div');
+                objectItem.className = 'object-item';
+                objectItem.innerHTML = `
+                    <span class="object-count">${count}</span>
+                    <span class="object-name">${className}</span>
+                `;
+                objectsGrid.appendChild(objectItem);
+            });
+        }
+
+        function capturePhoto() {
+            const formData = new FormData(cameraForm);
             
             fetch('/camera_capture', {
                 method: 'POST',
@@ -209,43 +985,127 @@
             })
             .then(response => response.json())
             .then(data => {
-                document.getElementById('loading').style.display = 'none';
-                
                 if (data.success) {
-                    document.getElementById('resultImage').src = 'data:image/jpeg;base64,' + data.image;
-                    
-                    let infoHtml = `
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">📊 Detection Summary</h5>
-                                <p><strong>Objects Found:</strong> ${data.objects_count}</p>
-                                <p><strong>Model Used:</strong> ${data.model_used}</p>
-                                <p><strong>Confidence:</strong> ${data.confidence_threshold}</p>
-                            </div>
-                        </div>
-                    `;
-                    
-                    if (data.detections.length > 0) {
-                        infoHtml += '<div class="mt-3"><h6>🎯 Detected Objects:</h6>';
-                        data.detections.forEach(det => {
-                            infoHtml += `
-                                <div class="alert alert-success">
-                                    <strong>${det.class}</strong> - ${(det.confidence * 100).toFixed(1)}% confidence
-                                </div>
-                            `;
-                        });
-                        infoHtml += '</div>';
-                    }
-                    
-                    document.getElementById('detectionInfo').innerHTML = infoHtml;
-                    document.getElementById('results').style.display = 'block';
+                    displayPhotoResults(data);
                 } else {
-                    alert('Error: ' + data.error);
+                    alert('Error capturing photo: ' + data.message);
                 }
             })
             .catch(error => {
-                document.getElementById('loading').style.display = 'none';
-                alert('Error: ' + error);
+                console.error('Error:', error);
+                alert('Error capturing photo');
+            });
+        }
+
+        function captureLiveFrame() {
+            fetch('/capture_live_frame', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayPhotoResults(data);
+                } else {
+                    alert('Error capturing frame: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error capturing frame');
+            });
+        }
+
+        function displayPhotoResults(data) {
+            const photoResults = document.getElementById('photoResults');
+            const capturedImage = document.getElementById('capturedImage');
+            const photoObjectsGrid = document.getElementById('photoObjectsGrid');
+            
+            // Show results section
+            photoResults.style.display = 'grid';
+            
+            // Display captured image
+            capturedImage.src = data.annotated_image_url;
+            
+            // Display detection results
+            if (data.detections && data.detections.length > 0) {
+                const objectCounts = {};
+                data.detections.forEach(detection => {
+                    const className = detection.class || 'unknown';
+                    objectCounts[className] = (objectCounts[className] || 0) + 1;
+                });
+                
+                photoObjectsGrid.innerHTML = '';
+                Object.entries(objectCounts).forEach(([className, count]) => {
+                    const objectItem = document.createElement('div');
+                    objectItem.className = 'object-item';
+                    objectItem.innerHTML = `
+                        <span class="object-count">${count}</span>
+                        <span class="object-name">${className}</span>
+                    `;
+                    photoObjectsGrid.appendChild(objectItem);
+                });
+            } else {
+                photoObjectsGrid.innerHTML = '<div class="object-item"><span class="object-name">No objects detected</span></div>';
+            }
+            
+            // Set download links
+            const downloadBtn = document.getElementById('downloadPhotoBtn');
+            const jsonBtn = document.getElementById('viewPhotoJsonBtn');
+            
+            if (data.annotated_image_url) {
+                downloadBtn.href = data.annotated_image_url;
+                downloadBtn.style.display = 'inline-flex';
+            }
+            
+            if (data.json_url) {
+                jsonBtn.href = data.json_url;
+                jsonBtn.style.display = 'inline-flex';
+            }
+            
+            // Scroll to results
+            photoResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all cards
+        document.querySelectorAll('.card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'all 0.6s ease';
+            observer.observe(card);        });
+
+        // Handle features link navigation
+        document.getElementById('featuresLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            // Navigate to index page and scroll to features
+            window.location.href = '/#features';
+        });
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
             });
         });
     </script>

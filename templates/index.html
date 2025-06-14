@@ -3,159 +3,1076 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Object Detection Web Interface</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <title>AI Vision - Advanced Object Detection Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        .drop-zone {
-            border: 2px dashed #ccc;
-            border-radius: 10px;
-            padding: 40px;
-            text-align: center;
-            cursor: pointer;
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --dark-bg: #0a0a0f;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.5);
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--dark-bg);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: var(--dark-bg);
+        }
+
+        .background-animation::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(75, 172, 254, 0.05) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .floating-element {
+            position: absolute;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            opacity: 0.05;
+            animation: float-element 15s ease-in-out infinite;
+        }
+
+        .floating-element:nth-child(1) {
+            width: 120px;
+            height: 120px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-element:nth-child(2) {
+            width: 80px;
+            height: 80px;
+            top: 60%;
+            right: 10%;
+            animation-delay: 5s;
+        }
+
+        .floating-element:nth-child(3) {
+            width: 150px;
+            height: 150px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        @keyframes float-element {
+            0%, 100% { transform: translateY(0px) translateX(0px) scale(1); }
+            33% { transform: translateY(-30px) translateX(30px) scale(1.1); }
+            66% { transform: translateY(30px) translateX(-30px) scale(0.9); }
+        }
+
+        /* Header */
+        .navbar {
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(25px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            letter-spacing: -0.02em;
             transition: all 0.3s ease;
         }
+
+        .navbar-brand:hover {
+            transform: translateY(-2px);
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+        }
+
+        .navbar-nav {
+            display: flex;
+            gap: 0;
+            background: var(--glass-bg);
+            border-radius: 50px;
+            padding: 0.5rem;
+            border: 1px solid var(--glass-border);
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border-radius: 25px;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .nav-link.active {
+            color: var(--text-primary);
+            background: var(--primary-gradient);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            padding: 6rem 2rem 4rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-bottom: 4rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 3rem;
+            backdrop-filter: blur(25px);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--primary-gradient);
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+
+        .card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-gradient);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-select, .form-range {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-select:focus, .form-range:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-select option {
+            background: var(--dark-bg);
+            color: var(--text-primary);
+        }
+
+        .form-range {
+            height: 6px;
+            background: var(--glass-bg);
+            appearance: none;
+            padding: 0;
+            border-radius: 3px;
+        }
+
+        .form-range::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .form-range::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Drop Zone */
+        .drop-zone {
+            border: 2px dashed var(--card-border);
+            border-radius: 16px;
+            padding: 4rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            background: var(--glass-bg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .drop-zone::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: all 0.8s ease;
+        }
+
         .drop-zone:hover {
-            border-color: #007bff;
-            background-color: #f8f9fa;
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+            transform: translateY(-2px);
         }
+
+        .drop-zone:hover::before {
+            left: 100%;
+        }
+
+        .drop-zone-icon {
+            font-size: 4rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+            transition: all 0.4s ease;
+        }
+
+        .drop-zone:hover .drop-zone-icon {
+            transform: translateY(-8px) scale(1.1);
+        }
+
+        .drop-zone-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .drop-zone-subtext {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--card-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Progress and Loading */
+        .progress-container {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--glass-bg);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-gradient);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .loading-text {
+            margin-top: 1rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        /* Results Section */
+        .results-section {
+            margin-top: 3rem;
+            display: none;
+        }
+
         .result-image {
-            max-width: 100%;
-            height: auto;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            margin-bottom: 2rem;
         }
-        .detection-card {
-            border-left: 4px solid #007bff;
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .result-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .result-number {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .result-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Feature Grid */
+        .features-section {
+            padding: 6rem 2rem;
+            background: var(--glass-bg);
+            margin: 4rem 0;
+            border-radius: 32px;
+            border: 1px solid var(--card-border);
+        }
+
+        .features-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-stats {
+                gap: 2rem;
+            }
+
+            .navbar-nav {
+                display: none;
+            }
+
+            .card {
+                padding: 2rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-gradient);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-gradient);
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">🎯 Object Detection</a>
+    <!-- Background Animation -->
+    <div class="background-animation"></div>
+    <div class="floating-elements">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="navbar-brand">
+                <div class="brand-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                AI Vision
+            </a>
             <div class="navbar-nav">
-                <a class="nav-link" href="/">Upload</a>
-                <a class="nav-link" href="/camera">Camera</a>
-                <a class="nav-link" href="/models">Models</a>
+                <a href="/" class="nav-link active">Detection</a>
+                <a href="/camera" class="nav-link">Camera</a>
+                <a href="#features" class="nav-link">Features</a>
             </div>
         </div>
     </nav>
 
-    <div class="container my-5">
-        <div class="row">
-            <div class="col-md-6">
-                <h2>Upload Image for Detection</h2>
+
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="main-grid">
+            <!-- Upload Section -->
+            <div class="card animate-fade-in">
+                <div class="card-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <h2 class="card-title">Upload & Detect</h2>
+                <p class="card-description">
+                    Upload your images and let our AI identify objects with precision. Supports multiple formats including JPG, PNG, and more.
+                </p>
+
                 <form id="uploadForm" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label for="model" class="form-label">Model</label>
+                    <div class="form-group">
+                        <label for="model" class="form-label">AI Model</label>
                         <select id="model" name="model" class="form-select">
                             {% for model in models %}
-                            <option value="{{ model }}">{{ model }}</option>
+                                {% set model_name = model.split('/')[-1].replace('.pt', '') %}
+                                {% if 'yolov8n' in model %}
+                                    <option value="{{ model }}">YOLOv8 Nano - Fastest ({{ model_name }})</option>
+                                {% elif 'yolov8s' in model %}
+                                    <option value="{{ model }}">YOLOv8 Small - Fast ({{ model_name }})</option>
+                                {% elif 'yolov8m' in model %}
+                                    <option value="{{ model }}">YOLOv8 Medium - Balanced ({{ model_name }})</option>
+                                {% elif 'yolov8l' in model %}
+                                    <option value="{{ model }}">YOLOv8 Large - High Accuracy ({{ model_name }})</option>
+                                {% elif 'yolov8x' in model %}
+                                    <option value="{{ model }}">YOLOv8 XLarge - Maximum Accuracy ({{ model_name }})</option>
+                                {% else %}
+                                    <option value="{{ model }}">{{ model_name.upper() }}</option>
+                                {% endif %}
                             {% endfor %}
                         </select>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label for="confidence" class="form-label">Confidence Threshold</label>
-                        <input type="range" id="confidence" name="confidence" class="form-range" min="0.1" max="1.0" step="0.05" value="0.25">
-                        <small class="text-muted">Value: <span id="confidenceValue">0.25</span></small>
+
+                    <div class="form-group">
+                        <label for="confidence" class="form-label">Confidence Threshold: <span id="confidenceValue">0.25</span></label>
+                        <input type="range" id="confidence" name="confidence" min="0.1" max="1.0" step="0.05" value="0.25" class="form-range">
                     </div>
-                    
-                    <div class="drop-zone mb-3" onclick="document.getElementById('fileInput').click()">
-                        <input type="file" id="fileInput" name="file" accept="image/*,video/*" style="display: none;">
-                        <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
-                        <p>Click to select or drag and drop an image/video file</p>
-                        <small class="text-muted">Supported: JPG, PNG, MP4, AVI, etc.</small>
+
+                    <div class="drop-zone" id="dropZone">
+                        <div class="drop-zone-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div class="drop-zone-text">Drop your image here</div>
+                        <div class="drop-zone-subtext">or click to browse files</div>
+                        <input type="file" id="fileInput" name="file" accept="image/*" style="display: none;">
                     </div>
-                    
-                    <button type="submit" class="btn btn-primary">🔍 Detect Objects</button>
+
+                    <div class="progress-container" id="progressContainer">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="loading-text" id="loadingText">Processing your image...</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="uploadBtn" style="width: 100%; margin-top: 1rem;">
+                        <i class="fas fa-magic"></i>
+                        Analyze Image
+                    </button>
                 </form>
             </div>
-            
-            <div class="col-md-6">
-                <div id="results" style="display: none;">
-                    <h3>Detection Results</h3>
-                    <img id="resultImage" class="result-image mb-3">
-                    <div id="detectionInfo"></div>
+
+            <!-- Results Section -->
+            <div class="card animate-fade-in">
+                <div class="card-icon">
+                    <i class="fas fa-chart-line"></i>
                 </div>
-                
-                <div id="loading" style="display: none;">
-                    <div class="text-center">
-                        <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Processing...</span>
-                        </div>
-                        <p class="mt-2">Processing image...</p>
+                <h2 class="card-title">Detection Results</h2>
+                <p class="card-description">
+                    View detailed analysis results with identified objects, confidence scores, and downloadable annotated images.
+                </p>
+
+                <div class="results-section" id="resultsSection">
+                    <img id="resultImage" class="result-image" alt="Detection Result">
+                    
+                    <div class="results-grid" id="resultsGrid">
+                        <!-- Results will be populated here -->
                     </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <a id="downloadBtn" class="btn btn-primary" style="flex: 1;">
+                            <i class="fas fa-download"></i>
+                            Download Result
+                        </a>
+                        <a id="jsonBtn" class="btn btn-secondary" style="flex: 1;">
+                            <i class="fas fa-code"></i>
+                            View JSON
+                        </a>
+                    </div>
+                </div>                <div id="placeholderResults" class="text-center" style="padding: 3rem; color: var(--text-muted);">
+                    <i class="fas fa-image" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                    <p>Upload an image to see detection results here</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+        <div class="container">
+            <h2 class="features-title">Powerful AI Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="feature-title">Advanced AI Models</h3>
+                    <p class="feature-description">
+                        Choose from multiple YOLOv8 variants optimized for different use cases - from ultra-fast nano models to high-accuracy large models.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <h3 class="feature-title">Real-time Detection</h3>
+                    <p class="feature-description">
+                        Experience lightning-fast object detection with live camera feeds and instant results for real-time applications.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <h3 class="feature-title">80+ Object Classes</h3>
+                    <p class="feature-description">
+                        Detect and classify over 80 different object types including people, vehicles, animals, and everyday items with high precision.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Mobile Optimized</h3>
+                    <p class="feature-description">
+                        Fully responsive design that works seamlessly across all devices - desktop, tablet, and mobile for detection on the go.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <h3 class="feature-title">Export Results</h3>
+                    <p class="feature-description">
+                        Download annotated images and detailed JSON reports with bounding box coordinates and confidence scores for further analysis.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-sliders-h"></i>
+                    </div>
+                    <h3 class="feature-title">Customizable Settings</h3>
+                    <p class="feature-description">
+                        Fine-tune detection parameters including confidence thresholds and model selection to optimize results for your specific needs.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- JavaScript -->
     <script>
         // Update confidence value display
-        document.getElementById('confidence').addEventListener('input', function() {
-            document.getElementById('confidenceValue').textContent = this.value;
+        const confidenceSlider = document.getElementById('confidence');
+        const confidenceValue = document.getElementById('confidenceValue');
+        
+        confidenceSlider.addEventListener('input', function() {
+            confidenceValue.textContent = this.value;
         });
 
-        // Handle form submission
-        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+        // File upload handling
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadForm = document.getElementById('uploadForm');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const loadingText = document.getElementById('loadingText');
+        const resultsSection = document.getElementById('resultsSection');
+        const placeholderResults = document.getElementById('placeholderResults');
+
+        // Drop zone click
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        // Drag and drop
+        dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
+            dropZone.style.borderColor = '#667eea';
+            dropZone.style.backgroundColor = 'rgba(102, 126, 234, 0.1)';
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--card-border)';
+            dropZone.style.backgroundColor = 'var(--glass-bg)';
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--card-border)';
+            dropZone.style.backgroundColor = 'var(--glass-bg)';
             
-            const formData = new FormData(this);
-            const file = document.getElementById('fileInput').files[0];
-            
-            if (!file) {
-                alert('Please select a file first');
-                return;
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileUpload();
             }
+        });
+
+        // File input change
+        fileInput.addEventListener('change', handleFileUpload);
+
+        // Form submission
+        uploadForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (fileInput.files.length > 0) {
+                handleFileUpload();
+            }
+        });
+
+        function handleFileUpload() {
+            const formData = new FormData(uploadForm);
             
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('results').style.display = 'none';
+            // Show progress
+            progressContainer.style.display = 'block';
+            placeholderResults.style.display = 'none';
+            resultsSection.style.display = 'none';
             
+            // Simulate progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                progressFill.style.width = progress + '%';
+            }, 200);
+
             fetch('/upload', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
-                document.getElementById('loading').style.display = 'none';
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
                 
-                if (data.success) {
-                    document.getElementById('resultImage').src = 'data:image/jpeg;base64,' + data.image;
-                    
-                    let infoHtml = `
-                        <div class="card detection-card">
-                            <div class="card-body">
-                                <h5 class="card-title">📊 Detection Summary</h5>
-                                <p><strong>Objects Found:</strong> ${data.objects_count}</p>
-                                <p><strong>Model Used:</strong> ${data.model_used}</p>
-                                <p><strong>Confidence:</strong> ${data.confidence_threshold}</p>
-                            </div>
-                        </div>
-                    `;
-                    
-                    if (data.detections.length > 0) {
-                        infoHtml += '<div class="mt-3"><h6>🎯 Detected Objects:</h6>';
-                        data.detections.forEach(det => {
-                            infoHtml += `
-                                <div class="alert alert-success">
-                                    <strong>${det.class}</strong> - ${(det.confidence * 100).toFixed(1)}% confidence
-                                </div>
-                            `;
-                        });
-                        infoHtml += '</div>';
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    if (data.success) {
+                        showResults(data);
+                    } else {
+                        alert('Error: ' + data.message);
+                        placeholderResults.style.display = 'block';
                     }
-                    
-                    document.getElementById('detectionInfo').innerHTML = infoHtml;
-                    document.getElementById('results').style.display = 'block';
-                } else {
-                    alert('Error: ' + data.error);
-                }
+                }, 500);
             })
             .catch(error => {
-                document.getElementById('loading').style.display = 'none';
-                alert('Error: ' + error);
+                clearInterval(progressInterval);
+                progressContainer.style.display = 'none';
+                alert('Error uploading file: ' + error);
+                placeholderResults.style.display = 'block';
+            });
+        }
+
+        function showResults(data) {
+            resultsSection.style.display = 'block';
+            
+            // Show result image
+            document.getElementById('resultImage').src = data.annotated_image_url;
+            
+            // Show statistics
+            const resultsGrid = document.getElementById('resultsGrid');
+            resultsGrid.innerHTML = `
+                <div class="result-card">
+                    <div class="result-number">${data.total_objects || 0}</div>
+                    <div class="result-label">Objects Found</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-number">${data.unique_classes || 0}</div>
+                    <div class="result-label">Unique Classes</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-number">${data.processing_time || 'N/A'}</div>
+                    <div class="result-label">Processing Time</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-number">${data.model_used || 'YOLOv8'}</div>
+                    <div class="result-label">AI Model</div>
+                </div>
+            `;
+            
+            // Set download links
+            document.getElementById('downloadBtn').href = data.annotated_image_url;
+            document.getElementById('downloadBtn').download = data.filename || 'detection_result.jpg';
+            
+            if (data.json_url) {
+                document.getElementById('jsonBtn').href = data.json_url;
+                document.getElementById('jsonBtn').style.display = 'inline-flex';
+            }
+        }
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);        // Observe all cards
+        document.querySelectorAll('.card, .feature-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'all 0.6s ease';
+            observer.observe(card);
+        });
+
+        // Handle hash navigation (for features link from camera page)
+        window.addEventListener('load', function() {
+            if (window.location.hash === '#features') {
+                setTimeout(() => {
+                    document.getElementById('features').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }, 100);
+            }
+        });
+
+        // Smooth scrolling for internal links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
             });
         });
     </script>
