@@ -44,6 +44,9 @@
 git clone https://github.com/YOUR_USERNAME/ObjectDetection.git
 cd ObjectDetection
 .\setup.ps1
+
+# Download models for better performance
+.\train_simple.ps1 -Action download
 ```
 
 ### Launch Web Interface
@@ -59,6 +62,15 @@ cd ObjectDetection
 ```
 
 Then open your browser to **http://127.0.0.1:5000** and start detecting objects!
+
+### Quick Model Training Setup
+```powershell
+# Compare available models
+.\train_simple.ps1 -Action compare
+
+# Upgrade to better model for improved accuracy
+.\train_simple.ps1 -Action upgrade
+```
 
 ## 📖 Web Interface Usage
 
@@ -89,8 +101,103 @@ The platform supports multiple YOLOv8 models with **optimized loading** and **sm
 |-------|------|-------|----------|----------|
 | **YOLOv8n** | 6MB | ⚡ Very Fast | Good | Quick testing, low resources |
 | **YOLOv8s** | 22MB | ⚡ Fast | Better | Balanced performance |
-| **YOLOv8m** | 52MB | 🔄 Medium | Best | Production use, high accuracy |
+| **YOLOv8m** | 52MB | 🔄 Medium | ⭐ **Best** | **Production use, optimal balance** |
 | **YOLOv8l** | 87MB | 🐌 Slower | Excellent | Maximum accuracy needed |
+| **YOLOv8x** | 131MB | 🐌 Slowest | Maximum | Research, ultimate precision |
+
+> **Default Model**: YOLOv8 Medium is selected by default as it provides the best balance of speed and accuracy for most use cases.
+
+## 🧠 Model Training & Management
+
+### 🚀 Quick Model Operations
+
+**Download All Models:**
+```powershell
+.\train_simple.ps1 -Action download
+```
+
+**Upgrade to Better Model:**
+```powershell
+.\train_simple.ps1 -Action upgrade
+```
+
+**Compare Model Performance:**
+```powershell
+.\train_simple.ps1 -Action compare
+```
+
+### 📊 Model Comparison Tool
+
+The built-in comparison tool tests all available models on your sample images:
+
+```powershell
+# Compare models on sample image
+python improve_model.py --demo --image input/sample.jpg
+
+# Compare specific models
+python train_model.py --action compare --models "models/yolov8n.pt" "models/yolov8m.pt" --test_images "your_test_folder"
+```
+
+**Example Output:**
+```
+🎯 DETECTION COMPARISON RESULTS
+========================================================================
+Model           Objects  Best Detection            Confidence   Time (s)
+------------------------------------------------------------------------
+YOLOV8M         3        bear                      0.864        1.43
+YOLOV8N         2        bear                      0.671        2.99
+YOLOV8S         2        dog                       0.880        0.88
+```
+
+### 🎯 Custom Model Training
+
+Train models on your own datasets for specific object detection tasks:
+
+**1. Prepare Your Dataset:**
+```
+dataset/
+├── images/
+│   ├── train/    # Training images (.jpg, .png)
+│   ├── val/      # Validation images
+│   └── test/     # Test images
+└── labels/
+    ├── train/    # YOLO format labels (.txt)
+    ├── val/      # One file per image
+    └── test/     # Format: class_id x_center y_center width height
+```
+
+**2. Train Custom Model:**
+```bash
+# Train new model from scratch
+python train_model.py --action train --project_name "my_custom_model" --class_names "person" "car" "bike" --epochs 100 --dataset_dir "my_dataset"
+
+# Fine-tune existing model
+python train_model.py --action finetune --project_name "improved_model" --base_model "models/yolov8m.pt" --epochs 50
+```
+
+**3. Annotation Tools:**
+- **LabelImg**: https://github.com/tzutalin/labelImg (Desktop tool)
+- **Label Studio**: https://labelstud.io/ (Web-based)
+- **Roboflow**: https://roboflow.com/ (Cloud-based with augmentation)
+
+### 🔧 Model Organization
+
+All models are properly organized in the `models/` directory:
+
+```
+models/
+├── yolov8n.pt    # Nano - Fastest
+├── yolov8s.pt    # Small - Fast
+├── yolov8m.pt    # Medium - ⭐ Default
+├── yolov8l.pt    # Large - High accuracy
+└── yolov8x.pt    # XLarge - Maximum accuracy
+```
+
+**Cleanup Utility:**
+```powershell
+# Automatically organize any misplaced model files
+.\cleanup_models_simple.ps1
+```
 
 ### 🔧 Smart Model Management
 - **Duplicate Detection**: Automatically prevents duplicate models in dropdown lists
@@ -233,6 +340,59 @@ python -c "import cv2; cap = cv2.VideoCapture(0); print('Camera available:', cap
 - Process smaller images or reduce image size
 - Restart web interface periodically for long sessions
 - Close other browser tabs
+</details>
+
+<details>
+<summary><b>🧠 Model Training Issues</b></summary>
+
+```powershell
+# Download all models if missing
+.\train_simple.ps1 -Action download
+
+# Check model organization
+.\cleanup_models_simple.ps1
+
+# Test model comparison
+.\train_simple.ps1 -Action compare
+
+# Fix model paths if training fails
+# Ensure dataset structure is correct:
+# dataset/images/train/, dataset/labels/train/
+```
+
+**Common Training Problems:**
+- **Missing Dataset**: Ensure proper YOLO format dataset structure
+- **Wrong Paths**: All models should be in `models/` directory
+- **Insufficient Data**: Need at least 100 images per class for good results
+- **Label Format**: Use YOLO format (class_id x_center y_center width height)
+
+**Annotation Tools:**
+- LabelImg: https://github.com/tzutalin/labelImg
+- Label Studio: https://labelstud.io/
+- Roboflow: https://roboflow.com/
+
+</details>
+
+<details>
+<summary><b>🎯 Model Performance Issues</b></summary>
+
+```powershell
+# Compare model performance
+python improve_model.py --demo --image input/sample.jpg
+
+# Test different models
+.\train_simple.ps1 -Action compare
+
+# Use better model for accuracy
+.\train_simple.ps1 -Action upgrade
+```
+
+**Performance Tips:**
+- **YOLOv8n**: Fastest, basic accuracy (good for testing)
+- **YOLOv8m**: Best balance (recommended for production)
+- **YOLOv8l**: High accuracy (slower but more precise)
+- **GPU**: Ensure CUDA is available for faster training
+
 </details>
 
 ## 🤝 Contributing
