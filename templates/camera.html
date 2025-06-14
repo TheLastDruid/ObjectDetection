@@ -669,9 +669,14 @@
                 <h2 class="card-title">📸 Photo Capture</h2>
                 <p class="card-description">
                     Take high-quality photos with instant object detection. Perfect for single-shot analysis and documentation.
-                </p>
+                </p>                <form id="cameraForm">
+                    <div class="form-group">
+                        <label for="camera_select" class="form-label">Camera Selection</label>
+                        <select id="camera_select" name="camera_index" class="form-select">
+                            <option value="0">Loading cameras...</option>
+                        </select>
+                    </div>
 
-                <form id="cameraForm">
                     <div class="form-group">
                         <label for="model" class="form-label">AI Model</label>
                         <select id="model" name="model" class="form-select">
@@ -829,19 +834,21 @@
         cameraForm.addEventListener('submit', function(e) {
             e.preventDefault();
             capturePhoto();
-        });
-
-        function startLiveDetection() {
+        });        function startLiveDetection() {
             const formData = new FormData();
-            formData.append('camera_index', '0');
+            formData.append('camera_index', document.getElementById('camera_select').value);
             formData.append('model', document.getElementById('model').value);
             formData.append('confidence', document.getElementById('confidence').value);
 
             fetch('/start_live_detection', {
                 method: 'POST',
-                body: formData
+                body: formData            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => Promise.reject(err));
+                }
+                return response.json();
             })
-            .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     liveDetectionActive = true;
@@ -849,12 +856,13 @@
                     updateLiveStatus('live', 'Live Detection Active');
                     startLiveStream();
                 } else {
-                    alert('Error starting live detection: ' + data.message);
+                    const errorMessage = data.error || data.message || 'Unknown error occurred';
+                    alert('Error starting live detection: ' + errorMessage);
                 }
-            })
-            .catch(error => {
+            })            .catch(error => {
                 console.error('Error:', error);
-                alert('Error starting live detection');
+                const errorMessage = error.error || error.message || 'Network error or server unavailable';
+                alert('Error starting live detection: ' + errorMessage);
             });
         }
 
@@ -1085,8 +1093,42 @@
         document.querySelectorAll('.card').forEach(card => {
             card.style.opacity = '0';
             card.style.transform = 'translateY(30px)';
-            card.style.transition = 'all 0.6s ease';
-            observer.observe(card);        });
+            card.style.transition = 'all 0.6s ease';            observer.observe(card);        });
+
+        // Load available cameras on page load
+        function loadAvailableCameras() {
+            fetch('/get_available_cameras')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.cameras.length > 0) {
+                        const cameraSelect = document.getElementById('camera_select');
+                        cameraSelect.innerHTML = '';
+                        
+                        data.cameras.forEach(camera => {
+                            const option = document.createElement('option');
+                            option.value = camera.index;
+                            option.textContent = camera.name;
+                            if (camera.index === 0) {
+                                option.selected = true;
+                            }
+                            cameraSelect.appendChild(option);
+                        });
+                    } else {
+                        const cameraSelect = document.getElementById('camera_select');
+                        cameraSelect.innerHTML = '<option value="0">No cameras detected</option>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading cameras:', error);
+                    const cameraSelect = document.getElementById('camera_select');
+                    cameraSelect.innerHTML = '<option value="0">Error loading cameras</option>';
+                });
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAvailableCameras();
+        });
 
         // Handle features link navigation
         document.getElementById('featuresLink').addEventListener('click', function(e) {

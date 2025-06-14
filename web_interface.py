@@ -308,12 +308,25 @@ def start_live_detection():
     global live_camera_active, live_camera_thread
     
     if live_camera_active:
-        return jsonify({'error': 'Live detection already active'}), 400
+        return jsonify({'success': False, 'error': 'Live detection already active'}), 400
     
     try:
         camera_index = int(request.form.get('camera_index', 0))
         model_path = request.form.get('model', 'yolov8n.pt')
         confidence = float(request.form.get('confidence', 0.25))
+        
+        # Test camera access
+        import cv2
+        cap = cv2.VideoCapture(camera_index)
+        if not cap.isOpened():
+            cap.release()
+            return jsonify({'success': False, 'error': f'Cannot access camera {camera_index}. Please check camera connection and permissions.'}), 400
+        cap.release()
+        
+        # Test model loading
+        model = load_model(model_path)
+        if model is None:
+            return jsonify({'success': False, 'error': f'Cannot load model {model_path}. Please check if the model file exists.'}), 400
         
         live_camera_active = True
         
@@ -323,9 +336,11 @@ def start_live_detection():
             'stream_url': f'/camera_stream?camera_index={camera_index}&model={model_path}&confidence={confidence}'
         })
         
+    except ValueError as e:
+        return jsonify({'success': False, 'error': f'Invalid parameter values: {str(e)}'}), 400
     except Exception as e:
         live_camera_active = False
-        return jsonify({'error': f'Failed to start live detection: {str(e)}'}), 500
+        return jsonify({'success': False, 'error': f'Failed to start live detection: {str(e)}'}), 500
 
 @app.route('/stop_live_detection', methods=['POST'])
 def stop_live_detection():
@@ -380,6 +395,50 @@ def capture_live_frame():
         
     except Exception as e:
         return jsonify({'error': f'Failed to capture frame: {str(e)}'}), 500
+
+@app.route('/camera_feed')
+def camera_feed():
+    """Alternative route name for camera stream (for compatibility)"""
+    return camera_stream()
+
+@app.route('/get_live_detections')
+def get_live_detections():
+    """Get current live detection results"""
+    global live_detections
+    
+    try:
+        return jsonify({
+            'success': True,
+            'detections': live_detections if live_detections else []
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/get_available_cameras')
+def get_available_cameras():
+    """Get list of available cameras"""
+    import cv2
+    
+    cameras = []
+    for i in range(10):  # Check first 10 camera indices
+        cap = cv2.VideoCapture(i)
+        if cap.isOpened():
+            cameras.append({
+                'index': i,
+                'name': f'Camera {i}',
+                'id': f'camera_{i}'
+            })
+            cap.release()
+        else:
+            break  # Stop checking if camera doesn't exist
+    
+    return jsonify({
+        'success': True,
+        'cameras': cameras
+    })
 
 def main():
     """Run the web application"""
