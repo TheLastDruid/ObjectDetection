@@ -62,12 +62,14 @@ def get_available_models():
     models_dir = Path('models')
     if models_dir.exists():
         for model_file in models_dir.glob('yolov8*.pt'):
-            model_files.append(str(model_file))
+            if model_file.exists():  # Ensure file actually exists
+                model_files.append(str(model_file))
     
-    # Check current directory as fallback
-    for model_file in Path('.').glob('yolov8*.pt'):
-        if str(model_file) not in model_files:  # Avoid duplicates
-            model_files.append(str(model_file))
+    # Only check current directory if no models found in models directory
+    if not model_files:
+        for model_file in Path('.').glob('yolov8*.pt'):
+            if model_file.exists():  # Ensure file actually exists
+                model_files.append(str(model_file))
     
     return sorted(model_files)
 
