@@ -42,12 +42,28 @@
                         <label for="camera_index" class="form-label">Camera Index</label>
                         <input type="number" id="camera_index" name="camera_index" class="form-control" value="0" min="0" max="9">
                     </div>
-                    
-                    <button type="submit" class="btn btn-primary">📷 Capture & Detect</button>
+                      <button type="submit" class="btn btn-primary">📷 Capture & Detect</button>
                 </form>
+                
+                <hr class="my-4">
+                
+                <h3>Live Camera Detection</h3>
+                <div id="liveControls">
+                    <button id="startLiveBtn" class="btn btn-success">🔴 Start Live Detection</button>
+                    <button id="stopLiveBtn" class="btn btn-danger" style="display: none;">⏹️ Stop Live Detection</button>
+                    <button id="captureLiveBtn" class="btn btn-info" style="display: none;">📸 Capture Frame</button>
+                </div>
             </div>
-            
-            <div class="col-md-6">
+              <div class="col-md-6">
+                <div id="liveStream" style="display: none;">
+                    <h3>🔴 Live Detection Stream</h3>
+                    <img id="liveStreamImage" class="img-fluid mb-3" style="width: 100%; height: auto; border: 2px solid #007bff;">
+                    <div id="liveDetectionInfo" class="alert alert-info">
+                        <strong>Status:</strong> <span id="liveStatus">Initializing...</span>
+                    </div>
+                    <div id="liveObjects"></div>
+                </div>
+                
                 <div id="results" style="display: none;">
                     <h3>Detection Results</h3>
                     <img id="resultImage" class="img-fluid mb-3">
@@ -64,13 +80,120 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    </div>    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
     <script>
+        let liveDetectionActive = false;
+        let statusInterval;
+        
         document.getElementById('confidence').addEventListener('input', function() {
             document.getElementById('confidenceValue').textContent = this.value;
         });
+
+        // Live Detection Functions
+        document.getElementById('startLiveBtn').addEventListener('click', function() {
+            const model = document.getElementById('model').value;
+            const confidence = document.getElementById('confidence').value;
+            const cameraIndex = document.getElementById('camera_index').value;
+            
+            const formData = new FormData();
+            formData.append('model', model);
+            formData.append('confidence', confidence);
+            formData.append('camera_index', cameraIndex);
+            
+            fetch('/start_live_detection', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    liveDetectionActive = true;
+                    document.getElementById('startLiveBtn').style.display = 'none';
+                    document.getElementById('stopLiveBtn').style.display = 'inline-block';
+                    document.getElementById('captureLiveBtn').style.display = 'inline-block';
+                    document.getElementById('liveStream').style.display = 'block';
+                    document.getElementById('results').style.display = 'none';
+                    
+                    // Start the live stream
+                    document.getElementById('liveStreamImage').src = data.stream_url;
+                    document.getElementById('liveStatus').textContent = 'Live detection active';
+                    
+                    // Start status updates
+                    statusInterval = setInterval(updateLiveStatus, 1000);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Error starting live detection: ' + error);
+            });
+        });
+        
+        document.getElementById('stopLiveBtn').addEventListener('click', function() {
+            fetch('/stop_live_detection', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                liveDetectionActive = false;
+                document.getElementById('startLiveBtn').style.display = 'inline-block';
+                document.getElementById('stopLiveBtn').style.display = 'none';
+                document.getElementById('captureLiveBtn').style.display = 'none';
+                document.getElementById('liveStream').style.display = 'none';
+                
+                if (statusInterval) {
+                    clearInterval(statusInterval);
+                }
+            })
+            .catch(error => {
+                alert('Error stopping live detection: ' + error);
+            });
+        });
+        
+        document.getElementById('captureLiveBtn').addEventListener('click', function() {
+            fetch('/capture_live_frame', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Frame captured and saved!');
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Error capturing frame: ' + error);
+            });
+        });
+        
+        function updateLiveStatus() {
+            if (!liveDetectionActive) return;
+            
+            fetch('/live_detection_status')
+            .then(response => response.json())
+            .then(data => {
+                if (data.active) {
+                    document.getElementById('liveStatus').textContent = `Active - ${data.objects_count} objects detected`;
+                    
+                    let objectsHtml = '';
+                    if (data.detections.length > 0) {
+                        objectsHtml = '<div class="mt-2"><small><strong>Current Objects:</strong><br>';
+                        data.detections.forEach(det => {
+                            objectsHtml += `${det.class} (${(det.confidence * 100).toFixed(1)}%), `;
+                        });
+                        objectsHtml = objectsHtml.slice(0, -2) + '</small></div>';
+                    }
+                    document.getElementById('liveObjects').innerHTML = objectsHtml;
+                } else {
+                    document.getElementById('liveStatus').textContent = 'Stopped';
+                    liveDetectionActive = false;
+                }
+            })
+            .catch(error => {
+                console.log('Status update error:', error);
+            });
+        }
 
         document.getElementById('cameraForm').addEventListener('submit', function(e) {
             e.preventDefault();

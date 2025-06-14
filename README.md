@@ -12,9 +12,10 @@
 ## ✨ Key Features
 
 🖼️ **Multiple Input Methods** - Images, videos, camera capture, live detection  
-🌐 **Web Interface** - Modern browser-based GUI with drag-and-drop  
+🌐 **Web Interface** - Modern browser-based GUI with live camera streaming  
 🔄 **Batch Processing** - Handle multiple files with comprehensive reporting  
 📷 **Camera Integration** - Real-time detection and capture capabilities  
+🎥 **Live Streaming** - Browser-based live camera detection with auto-refresh  
 ⚙️ **Configuration Management** - Preset management for different use cases  
 🚀 **PowerShell Scripts** - Windows-native scripts for easy operation  
 🎯 **Model Management** - Multi-model support with automatic downloading  
@@ -109,7 +110,17 @@ python main.py --image_path "input/photo.jpg" --conf_threshold 0.7 --save_annota
 
 # Start in debug mode
 .\web.ps1 -Debug -OpenBrowser
+
+# Access camera page directly
+# Navigate to http://localhost:5000/camera for camera features
 ```
+
+**Web Interface Camera Features:**
+- 📸 **Photo Capture** - Take photos directly from browser
+- 🎥 **Live Streaming** - Real-time object detection with video feed
+- 🔄 **Auto-Detection** - Automatic object detection on live camera feed
+- 📱 **Mobile Camera** - Works with phone cameras through browser
+- 💾 **Save Results** - Download detected images and JSON reports
 </details>
 
 ## 🎯 Model Performance
@@ -195,10 +206,13 @@ Launch the modern web interface for non-technical users:
 **Features:**
 - 📤 **Drag & Drop Upload** - Easy file handling
 - 📷 **Camera Integration** - Browser-based camera access
-- 🎛️ **Model Selection** - Choose different YOLO models
+- � **Live Camera Streaming** - Real-time object detection with live video feed
+- 📸 **Camera Capture** - Take photos directly from web interface
+- �🎛️ **Model Selection** - Choose different YOLO models
 - ⚙️ **Adjustable Settings** - Confidence thresholds, output options
 - 📊 **Real-time Results** - Instant detection visualization
 - 📱 **Mobile Responsive** - Works on phones and tablets
+- 🔄 **Auto-refresh** - Live detection updates every second
 
 ## 🔧 Advanced Configuration
 

@@ -5,6 +5,26 @@ All notable changes to the ObjectDetection project will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2025-06-14
+
+### ✨ Enhanced Web Interface with Live Camera Streaming
+
+#### Added
+- **Live Camera Streaming**: Real-time object detection with live video feed in web browser
+- **Auto-refresh Detection**: Automatic detection updates every second during live streaming
+- **Enhanced Camera Template**: Improved UI for camera operations with live streaming controls
+- **Mobile Camera Support**: Live streaming works with mobile device cameras through browser
+- **Real-time Results Display**: Live detection results with bounding boxes and confidence scores
+
+#### Fixed
+- **Web Interface Indentation Error**: Fixed Python syntax error that prevented Flask app from starting
+- **Camera Template Enhancement**: Added live streaming functionality to existing camera capture features
+
+#### Improved
+- **Camera Page Navigation**: Direct access to camera features at `/camera` endpoint
+- **User Experience**: Seamless integration between photo capture and live streaming
+- **Documentation**: Updated README with comprehensive live camera streaming information
+
 ## [2.0.0] - 2025-06-01
 
 ### 🎉 Major Release - Advanced Features Added
