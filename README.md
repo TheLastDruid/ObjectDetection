@@ -1,140 +1,89 @@
-# 🎯 ObjectDetection Platform
+# 🎯 ObjectDetection Web Platform
 
-> **Advanced object detection platform with web interface, batch processing, and PowerShell automation**
+> **High-performance web-based object detection platform with modern UI and real-time capabilities**
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://python.org)
 [![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-orange)](https://ultralytics.com)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey)](README.md)
+[![Flask](https://img.shields.io/badge/Flask-Web%20Interface-blue)](https://flask.palletsprojects.com)
 
-**ObjectDetection** is a comprehensive, production-ready object detection platform built with YOLOv8. It features a **modern redesigned web interface**, batch processing, real-time camera detection, and powerful configuration management - all wrapped in intuitive PowerShell scripts.
+**ObjectDetection** is a streamlined, high-performance web-based object detection platform built with YOLOv8. It features a **modern web interface** with real-time camera detection, optimized for speed and ease of use.
 
-## 🆕 What's New in v2.2.0
+## 🆕 What's New in v3.0.0
 
-✨ **Complete UI Overhaul** - Brand new modern interface with gradients, animations, and intuitive design  
-🎛️ **Smart Model Management** - Fixed dropdown duplicates and improved model selection  
-🗑️ **System Cleanup** - Removed legacy scripts and organized project structure  
-📱 **Enhanced Mobile Experience** - Better responsive design for all devices  
-⚡ **Improved Performance** - Faster model loading and better error handling
+✨ **Web-Only Focus** - Streamlined to focus exclusively on the web interface for better performance  
+⚡ **Speed Optimizations** - Model caching, GPU support, frame skipping, and threaded processing  
+🧹 **Clean Architecture** - Removed command-line scripts and batch processing for simplified codebase  
+🎯 **No Duplicates** - Clean model management with organized storage in `models/` directory  
+� **Easy Launch** - Simple batch files and PowerShell scripts for instant web app startup  
+📱 **Enhanced Mobile** - Optimized web interface works perfectly on mobile devices
 
 ## ✨ Key Features
 
-🖼️ **Multiple Input Methods** - Images, videos, camera capture, live detection  
-🌐 **Modern Web Interface** - Redesigned browser-based GUI with intuitive drag-and-drop  
-🔄 **Batch Processing** - Handle multiple files with comprehensive reporting  
-📷 **Camera Integration** - Real-time detection and capture capabilities  
-🎥 **Live Streaming** - Browser-based live camera detection with auto-refresh  
-⚙️ **Configuration Management** - Preset management for different use cases  
-🚀 **PowerShell Scripts** - Windows-native scripts for easy operation  
-🎯 **Smart Model Management** - Multi-model support with automatic downloading and duplicate detection  
-📊 **Performance Analysis** - Built-in benchmarking and comparison tools  
-✨ **Modern UI Design** - Beautiful, responsive interface with animations and real-time feedback
+🌐 **Modern Web Interface** - Clean, responsive browser-based GUI with drag-and-drop  
+� **Real-time Camera Detection** - Live camera streaming with instant object detection  
+�️ **Image Processing** - Upload and process images with multiple YOLO models  
+🎥 **Video Support** - Process video files with frame-by-frame detection  
+⚡ **Performance Optimized** - Model caching, GPU support, and threaded processing  
+🎯 **Smart Model Management** - Multiple YOLO models with automatic optimization  
+� **Mobile Friendly** - Fully responsive design works on phones and tablets  
+🚀 **Easy Launch** - Simple batch files and PowerShell scripts for instant startup
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - **Python 3.8+** installed on your system
-- **PowerShell** (Windows) or **Bash** (Linux)
+- **Git** for cloning the repository
 - At least **4GB RAM** available
+- **Webcam** (optional, for camera features)
 
 ### One-Command Setup
 ```powershell
-# Clone and setup in one go
+# Clone and setup
 git clone https://github.com/YOUR_USERNAME/ObjectDetection.git
 cd ObjectDetection
 .\setup.ps1
 ```
 
-### Basic Usage
+### Launch Web Interface
 ```powershell
-# 🖼️ Detect objects in images
-.\run.ps1 -SaveAnnotated -SaveJson -CountObjects
+# Easy launch with batch file (Windows)
+.\start.bat
 
-# 📷 Camera capture and detection
-.\camera.ps1 -Capture -SaveAnnotated -SaveJson
+# Or with PowerShell (optimized)
+.\fast_web.ps1
 
-# 🌐 Launch web interface
-.\web.ps1 -OpenBrowser
-
-# 🔄 Batch process multiple files
-.\batch.ps1 -InputPath "input" -Mode images
+# Or with simple batch launcher
+.\run_web.bat
 ```
 
-## 📖 Usage Examples
+Then open your browser to **http://127.0.0.1:5000** and start detecting objects!
 
-<details>
-<summary><b>🖼️ Image Detection</b></summary>
+## 📖 Web Interface Usage
 
-```powershell
-# Process single image
-.\run.ps1 -ImagePath "input/photo.jpg" -SaveAnnotated
+### 🖼️ Image Detection
+1. **Upload Images**: Drag and drop images or click to browse
+2. **Select Model**: Choose from YOLOv8n (fast) to YOLOv8l (accurate)
+3. **Adjust Settings**: Use confidence slider for detection threshold
+4. **View Results**: See detected objects with bounding boxes and labels
+5. **Download**: Save annotated images and JSON reports
 
-# Use different model for better accuracy
-.\run.ps1 -ModelPath "models/yolov8m.pt" -SaveAnnotated
+### 📷 Camera Detection
+1. **Access Camera**: Navigate to `/camera` page or use camera button
+2. **Grant Permissions**: Allow browser to access your camera
+3. **Live Detection**: See real-time object detection in your browser
+4. **Capture Photos**: Take snapshots with detected objects
+5. **Live Streaming**: Enable continuous detection mode
 
-# Custom confidence threshold
-python main.py --image_path "input/photo.jpg" --conf_threshold 0.7 --save_annotated
-```
-</details>
-
-<details>
-<summary><b>📷 Camera Detection</b></summary>
-
-```powershell
-# Single photo capture
-.\camera.ps1 -Capture -SaveAnnotated -SaveJson -CountObjects
-
-# Live camera detection (press 'q' to quit)
-.\camera.ps1 -Live -SaveAnnotated
-
-# Use specific camera (if multiple cameras)
-.\camera.ps1 -Capture -CameraIndex 1 -SaveAnnotated
-```
-</details>
-
-<details>
-<summary><b>🔄 Batch Processing</b></summary>
-
-```powershell
-# Process all images in directory
-.\batch.ps1 -InputPath "my_photos" -Mode images
-
-# Process video with frame extraction
-.\batch.ps1 -InputPath "video.mp4" -Mode video -SaveFrames
-
-# Batch process with performance model
-.\batch.ps1 -InputPath "photos" -ModelPath "models/yolov8m.pt"
-```
-</details>
-
-<details>
-<summary><b>🌐 Web Interface</b></summary>
-
-```powershell
-# Launch local web interface
-.\web.ps1 -OpenBrowser
-
-# Start with network access (accessible from other devices)
-.\web.ps1 -Host "0.0.0.0" -Port 5000
-
-# Start in debug mode
-.\web.ps1 -Debug -OpenBrowser
-
-# Access camera page directly
-# Navigate to http://localhost:5000/camera for camera features
-```
-
-**Web Interface Camera Features:**
-- 📸 **Photo Capture** - Take photos directly from browser
-- 🎥 **Live Streaming** - Real-time object detection with video feed
-- 🔄 **Auto-Detection** - Automatic object detection on live camera feed
-- 📱 **Mobile Camera** - Works with phone cameras through browser
-- 💾 **Save Results** - Download detected images and JSON reports
-</details>
+### 🎥 Video Processing
+1. **Upload Video**: Select video files for processing
+2. **Frame Analysis**: Automatic frame-by-frame detection
+3. **Results Export**: Download processed frames and detection data
 
 ## 🎯 Model Performance
 
-The platform supports multiple YOLOv8 model variants with **intelligent duplicate detection** and **organized model management**:
+The platform supports multiple YOLOv8 models with **optimized loading** and **smart caching**:
 
 | Model | Size | Speed | Accuracy | Best For |
 |-------|------|-------|----------|----------|
@@ -149,111 +98,69 @@ The platform supports multiple YOLOv8 model variants with **intelligent duplicat
 - **Availability Validation**: Only shows models that actually exist and are accessible
 - **Clean Interface**: Dropdown lists show only valid, usable models
 
-### Model Management
-```powershell
-# Download and compare all models
-.\train.ps1 -Action upgrade
-
-# Compare performance on your images
-python improve_model.py --demo --image "input/sample.jpg"
-
-# Use specific model
-.\run.ps1 -ModelPath "models/yolov8m.pt" -SaveAnnotated
-```
+### 🔧 Performance Features
+- **Model Caching**: Models loaded once and cached for faster subsequent use
+- **GPU Acceleration**: Automatic GPU detection and utilization when available
+- **Frame Skipping**: Optimized for real-time camera detection
+- **Threaded Processing**: Non-blocking processing for better web performance
+- **Auto-resize**: Automatic image resizing for optimal processing speed
+- **JPEG Compression**: Optimized image delivery for web interface
 
 ## 📁 Project Structure
 
 ```
 ObjectDetection/
-├── 🔧 Automation Scripts
-│   ├── setup.ps1              # Environment setup
-│   ├── run.ps1                # Image detection
-│   ├── camera.ps1             # Camera operations
-│   ├── batch.ps1              # Batch processing
-│   ├── train.ps1              # Model management
-│   └── web.ps1                # Web interface
-├── 🐍 Core Python Scripts
-│   ├── main.py                # Detection engine
-│   ├── web_interface.py       # Flask web app (modernized)
-│   ├── batch_process.py       # Batch processing
-│   ├── config_manager.py      # Configuration management
-│   ├── train_model.py         # Training utilities
-│   └── improve_model.py       # Performance analysis
-├── 📁 Data Directories
-│   ├── input/                 # Input images/videos
-│   ├── output/                # Detection results
-│   ├── models/                # YOLO models (organized, no duplicates)
-│   ├── configs/               # Configuration presets
-│   ├── templates/             # Web interface templates (redesigned)
-│   ├── web_uploads/           # Web interface uploads
-│   └── web_output/            # Web detection results
+├── � Launch Scripts
+│   ├── start.bat              # Simple batch launcher
+│   ├── run_web.bat            # Alternative batch launcher  
+│   ├── fast_web.ps1           # Optimized PowerShell launcher
+│   └── setup.ps1              # Environment setup
+├── 🐍 Core Application
+│   └── web_interface.py       # Main Flask web application (optimized)
+├── 📁 Models & Data
+│   ├── models/                # YOLO models (yolov8n, s, m, l)
+│   ├── templates/             # Web interface HTML templates
+│   ├── web_uploads/           # File uploads from web interface
+│   └── web_output/            # Detection results and outputs
+├── ⚙️ Configuration
+│   ├── requirements.txt       # Python dependencies
+│   ├── .vscode/tasks.json     # VS Code tasks for web interface
+│   └── .gitignore             # Git ignore rules
 └── 📚 Documentation
-    ├── README.md              # This file (updated)
+    ├── README.md              # This file (updated for web-only)
+    ├── CHANGELOG.md           # Version history
     ├── CONTRIBUTING.md        # Contribution guide
-    ├── CHANGELOG.md           # Version history (current)
     └── LICENSE                # MIT license
 ```
 
-## ⚙️ Configuration Management
-
-The platform includes a powerful configuration system with preset profiles:
-
-```powershell
-# List available presets
-python config_manager.py --list
-
-# Create common presets
-python config_manager.py --create-common
-```
-
-### Available Presets
-- **🚀 Fast Processing** - Optimized for speed (YOLOv8n, low confidence)
-- **🎯 High Accuracy** - Maximum precision (YOLOv8m, high confidence)  
-- **📱 Mobile Friendly** - Lightweight for low-resource devices
-- **🔒 Security Camera** - Optimized for surveillance scenarios
-
 ## 🌐 Web Interface Features
 
-Launch the modern web interface for non-technical users:
+Launch the web interface using any of the provided launchers:
 
 ```powershell
-.\web.ps1 -OpenBrowser
+# Fastest launch (recommended)
+.\fast_web.ps1
+
+# Simple batch launcher
+.\start.bat
+
+# Alternative batch launcher
+.\run_web.bat
 ```
 
-**Features:**
-- 🎨 **Modern Design** - Beautiful gradient interface with smooth animations
+**Core Features:**
+- 🎨 **Modern Design** - Clean, responsive interface with smooth animations
 - 📤 **Drag & Drop Upload** - Intuitive file handling with visual feedback
 - 📷 **Camera Integration** - Browser-based camera access with live preview
 - 🎥 **Live Camera Streaming** - Real-time object detection with live video feed
-- 📸 **Camera Capture** - Take photos directly from web interface
+- 📸 **Instant Capture** - Take photos directly from web interface
 - 🎛️ **Smart Model Selection** - Choose different YOLO models without duplicates
-- ⚙️ **Interactive Settings** - Dynamic confidence threshold slider with real-time preview
-- 📊 **Enhanced Results** - Instant detection visualization with improved image handling
+- ⚙️ **Interactive Settings** - Dynamic confidence threshold slider
+- 📊 **Real-time Results** - Instant detection visualization
 - 📱 **Mobile Responsive** - Optimized for phones and tablets
-- 🔄 **Auto-refresh** - Live detection updates every second
-- ✨ **Animated Interface** - Professional loading animations and smooth transitions
+- ⚡ **Performance Optimized** - Fast loading and processing
 
-## 🔧 Advanced Configuration
-
-### Custom Model Training
-```powershell
-# Prepare training environment
-.\train.ps1 -Action prepare
-
-# Train custom model (after data preparation)
-.\train.ps1 -Action train -ClassNames "cat,dog,bird" -ProjectName "pets"
-```
-
-### Performance Optimization
-```powershell
-# Benchmark different models
-python improve_model.py --batch_dir "input"
-
-# GPU acceleration (if CUDA available)
-python main.py --device cuda --image_path "input/sample.jpg"
-```
-
-## 🛠️ Troubleshooting
+## ️ Troubleshooting
 
 <details>
 <summary><b>🐍 Python Environment Issues</b></summary>
@@ -283,14 +190,17 @@ pip install ultralytics --upgrade
 </details>
 
 <details>
-<summary><b>🔧 PowerShell Execution Issues</b></summary>
+<summary><b>🌐 Web Interface Issues</b></summary>
 
 ```powershell
-# Enable script execution (run as Administrator)
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+# Check if web interface is running
+# Open browser to http://127.0.0.1:5000
 
-# Run with bypass (alternative)
-powershell.exe -ExecutionPolicy Bypass -File ".\setup.ps1"
+# Restart web interface
+# Press Ctrl+C in terminal, then rerun launcher
+
+# Clear browser cache if interface looks broken
+# Ctrl+Shift+R (hard refresh)
 ```
 </details>
 
@@ -301,9 +211,10 @@ powershell.exe -ExecutionPolicy Bypass -File ".\setup.ps1"
 # Test camera access
 python -c "import cv2; cap = cv2.VideoCapture(0); print('Camera available:', cap.isOpened()); cap.release()"
 
-# Try different camera index
-.\camera.ps1 -Capture -CameraIndex 1
+# Check browser permissions
+# Allow camera access when prompted
 
+# Try different browser (Chrome, Firefox, Edge)
 # Check camera permissions in Windows Settings > Privacy & Security > Camera
 ```
 </details>
@@ -312,15 +223,16 @@ python -c "import cv2; cap = cv2.VideoCapture(0); print('Camera available:', cap
 <summary><b>🚀 Performance Issues</b></summary>
 
 **Slow Detection:**
-- Use lighter model: `.\run.ps1 -ModelPath "models/yolov8n.pt"`
-- Reduce image size before processing
+- Use lighter model: Select YOLOv8n in the web interface
 - Close unnecessary applications
-- Enable GPU if available: `python main.py --device cuda`
+- Enable GPU if available (automatic detection)
+- Use lower confidence threshold for faster processing
 
 **High Memory Usage:**
 - Use nano model (YOLOv8n) instead of larger models
-- Process images individually instead of batch
-- Restart application periodically for long sessions
+- Process smaller images or reduce image size
+- Restart web interface periodically for long sessions
+- Close other browser tabs
 </details>
 
 ## 🤝 Contributing

@@ -5,6 +5,43 @@ All notable changes to the ObjectDetection project will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# Changelog
+
+All notable changes to the ObjectDetection project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [3.0.0] - 2025-06-14
+
+### 🚀 Web-Only Platform with Performance Optimization
+
+#### Added
+- **Performance Optimizations**: Model caching, GPU support, frame skipping for real-time detection
+- **Threaded Server**: Non-blocking web interface with better responsiveness
+- **Easy Launchers**: Simple batch files (`start.bat`, `run_web.bat`) and optimized PowerShell (`fast_web.ps1`)
+- **Auto-resize & Compression**: Automatic image optimization for faster processing
+- **Pre-loading**: Models pre-loaded on startup for instant detection
+
+#### Removed
+- **Command-line Scripts**: Removed `run.ps1`, `camera.ps1`, `batch.ps1` for streamlined web-only focus
+- **Batch Processing**: Removed `batch_process.py` and related batch processing functionality
+- **Configuration Scripts**: Removed `config_manager.py`, `improve_model.py`, `train_model.py`
+- **Duplicate Files**: Removed `main.py`, `show_models.py` and other non-web components
+- **Legacy Dependencies**: Cleaned up unused output directories and configuration files
+- **Duplicate Models**: Removed duplicate model files from root directory
+
+#### Improved
+- **Model Management**: All models now properly organized in `models/` directory
+- **Web Interface**: Enhanced performance with caching and GPU acceleration
+- **Code Organization**: Simplified codebase focused exclusively on web interface
+- **Documentation**: Updated README and CHANGELOG to reflect current web-only architecture
+
+#### Fixed
+- **Model Path References**: All references now correctly point to `models/` directory
+- **No Duplicates**: Eliminated duplicate model entries and files
+- **Clean Architecture**: Removed redundant code and simplified project structure
+
 ## [2.2.0] - 2025-06-14
 
 ### 🎨 Major UI Overhaul and System Cleanup
